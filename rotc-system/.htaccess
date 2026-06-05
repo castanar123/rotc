@@ -1,0 +1,11 @@
+# Block access to includes, libs and db directories
+RedirectMatch 403 /includes/.*\.php$
+RedirectMatch 403 /libs/.*\.php$
+RedirectMatch 403 /db/.*\.sql$
+
+# More secure way using RewriteEngine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^s/?$ /attendance/scan.php [L]
+    RewriteRule ^(includes|libs|db)/ - [F,L]
+</IfModule>

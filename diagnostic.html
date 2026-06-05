@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Diagnostic</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00);
+            min-height: 100vh;
+        }
+        .diagnostic-box {
+            background: white;
+            border: 5px solid black;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .big-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: red;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .info {
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-left: 5px solid #333;
+        }
+        .test-button {
+            background: #007cba;
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-box">
+        <div class="big-text">DISPLAY DIAGNOSTIC TEST</div>
+        <div class="info">If you can see this page clearly, your browser is working correctly.</div>
+        <div class="info">Screen Resolution: <span id="resolution"></span></div>
+        <div class="info">Viewport Size: <span id="viewport"></span></div>
+        <div class="info">Browser Zoom: <span id="zoom"></span></div>
+        <div class="info">Current URL: <span id="url"></span></div>
+        <button class="test-button" onclick="testRegistrationForm()">Test Registration Form</button>
+        <button class="test-button" onclick="resetBrowser()">Reset Browser Settings</button>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Display system information
+        document.getElementById('resolution').textContent = screen.width + ' x ' + screen.height;
+        document.getElementById('viewport').textContent = window.innerWidth + ' x ' + window.innerHeight;
+        document.getElementById('zoom').textContent = Math.round(window.devicePixelRatio * 100) + '%';
+        document.getElementById('url').textContent = window.location.href;
+
+        function testRegistrationForm() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="info">Testing registration form...</div>';
+            
+            // Open registration form in new tab
+            const newWindow = window.open('/register.php', '_blank');
+            
+            setTimeout(() => {
+                results.innerHTML += '<div class="info">Registration form opened in new tab. Check if you can see it there.</div>';
+            }, 1000);
+        }
+
+        function resetBrowser() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = `
+                <div class="info"><strong>Browser Reset Instructions:</strong></div>
+                <div class="info">1. Press Ctrl+0 (zero) to reset zoom to 100%</div>
+                <div class="info">2. Press F11 twice to exit/enter fullscreen mode</div>
+                <div class="info">3. Press Ctrl+Shift+R to hard refresh</div>
+                <div class="info">4. Try opening the registration form again</div>
+            `;
+        }
+
+        // Auto-test after 3 seconds
+        setTimeout(() => {
+            console.log('Diagnostic page loaded successfully');
+            console.log('Screen:', screen.width + 'x' + screen.height);
+            console.log('Viewport:', window.innerWidth + 'x' + window.innerHeight);
+            console.log('Zoom:', Math.round(window.devicePixelRatio * 100) + '%');
+        }, 1000);
+    </script>
+</body>
+</html>

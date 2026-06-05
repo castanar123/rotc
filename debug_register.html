@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Registration Form</title>
+    <link rel="stylesheet" href="css/registration-form.css">
+</head>
+<body>
+    <div class="registration-container">
+        <div class="registration-form-container">
+            <form class="registration-form" id="registrationForm">
+                <div class="progress-indicator">
+                    <div class="progress-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Account</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Personal</div>
+                    </div>
+                </div>
+                
+                <div class="form-step active" data-step="1">
+                    <div class="step-header">
+                        <h2>Step 1: Account Credentials</h2>
+                        <p>Create your account credentials</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Student Number</label>
+                            <input type="text" name="student_number" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-step" data-step="2">
+                    <div class="step-header">
+                        <h2>Step 2: Personal Information</h2>
+                        <p>Tell us about yourself</p>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
+                    <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                    <button type="submit" id="submitBtn" class="btn btn-success" style="display: none;">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Debug script starting...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            const form = document.getElementById('registrationForm');
+            const steps = document.querySelectorAll('.form-step');
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            console.log('Form elements found:', {
+                form: !!form,
+                steps: steps.length,
+                progressSteps: progressSteps.length,
+                nextBtn: !!nextBtn,
+                prevBtn: !!prevBtn,
+                submitBtn: !!submitBtn
+            });
+            
+            let currentStep = 1;
+            const totalSteps = steps.length;
+            
+            console.log('Initial state:', { currentStep, totalSteps });
+            
+            // Show specific step
+            function showStep(step) {
+                console.log('Showing step:', step);
+                
+                // Hide all steps
+                steps.forEach((s, index) => {
+                    s.classList.remove('active');
+                    console.log(`Step ${index + 1} hidden`);
+                });
+                
+                // Show current step
+                const currentStepElement = document.querySelector(`[data-step="${step}"]`);
+                if (currentStepElement) {
+                    currentStepElement.classList.add('active');
+                    console.log(`Step ${step} shown`);
+                } else {
+                    console.error(`Step ${step} element not found`);
+                }
+                
+                // Update navigation buttons
+                prevBtn.style.display = step === 1 ? 'none' : 'inline-flex';
+                nextBtn.style.display = step === totalSteps ? 'none' : 'inline-flex';
+                submitBtn.style.display = step === totalSteps ? 'inline-flex' : 'none';
+                
+                console.log('Button visibility updated');
+            }
+            
+            // Initialize form
+            console.log('Initializing form...');
+            showStep(currentStep);
+            
+            // Navigation event listeners
+            nextBtn.addEventListener('click', function() {
+                console.log('Next button clicked');
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                console.log('Previous button clicked');
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+            
+            console.log('Event listeners attached');
+        });
+    </script>
+</body>
+</html>

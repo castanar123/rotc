@@ -1,0 +1,243 @@
+/* --- Military-Grade UI Theme --- */
+
+/* --- Variables & Root --- */
+:root {
+    --bg-color: #121212; /* Near black */
+    --primary-container-bg: #1e1e1e; /* Very dark gray */
+    --secondary-container-bg: #2a2a2a; /* Slightly lighter gray */
+    --border-color: #3a3a3a;
+    --text-primary: #e0e0e0; /* Light gray for text */
+    --text-secondary: #a0a0a0; /* Dimmer text */
+    --accent-color: #00ff7f; /* Spring Green / Night Vision */
+    --accent-hover: #00e673;
+    --danger-color: #ff4d4d;
+}
+
+/* --- General Styles --- */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Roboto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: var(--primary-container-bg) !important;
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 255, 127, 0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--text-primary) !important;
+    text-transform: uppercase;
+}
+
+.nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+/* --- Main Content Containers --- */
+.form-container, .announcement-card, .about-card {
+    background-color: var(--primary-container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 2rem;
+    box-shadow: inset 0 0 15px rgba(0, 255, 127, 0.1);
+}
+
+/* --- Form Elements --- */
+.form-label {
+    color: var(--accent-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    background-color: var(--secondary-container-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0;
+}
+
+.form-control:focus {
+    background-color: var(--secondary-container-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+}
+
+.form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+.form-select {
+    background-color: var(--secondary-container-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 0;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: 0;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 10px 25px;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary, .btn-success {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #121212;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #121212;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 127, 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-container-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* --- Step Indicator (Registration) --- */
+.step-indicator .step-icon {
+    background-color: var(--secondary-container-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.step-indicator .step.active .step-icon {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.step-indicator .step.finish .step-icon {
+    background-color: var(--primary-container-bg);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.step-indicator .step-label {
+    color: var(--text-secondary);
+}
+
+.step-indicator .step.active .step-label, .step-indicator .step.finish .step-label {
+    color: var(--accent-color);
+}
+
+/* --- Landing Page Specifics --- */
+.section-title {
+    color: var(--accent-color);
+}
+
+.section-title::after {
+    background-color: var(--accent-color);
+}
+
+.cta-section {
+    background-color: var(--primary-container-bg);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cta-section h2 {
+    color: var(--accent-color);
+}
+
+.btn-outline-light {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.invalid-feedback {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+/* --- Card & Icon Enhancements --- */
+.announcement-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.announcement-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 20px rgba(0, 255, 127, 0.15);
+}
+
+.announcement-card h4 {
+    display: flex;
+    align-items: center;
+}
+
+.announcement-card h4 .fas {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    width: 30px; /* Ensure alignment */
+    text-align: center;
+}
+
+/* --- Stats Section --- */
+.stats-section {
+    background-color: var(--primary-container-bg);
+    padding: 60px 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-item .stat-number {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.stat-item .stat-label {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* --- Scroll Reveal Animation --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}

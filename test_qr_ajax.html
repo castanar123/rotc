@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Generation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; background: #f5f5f5; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        img { max-width: 200px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>QR Generation Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Get Rifle List</h3>
+        <button onclick="testGetRifleList()">Get Rifle List</button>
+        <div id="rifleListResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Generate Single QR</h3>
+        <input type="number" id="rifleIdInput" placeholder="Enter Rifle ID" value="1">
+        <button onclick="testSingleQR()">Generate Single QR</button>
+        <div id="singleQRResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Generate Batch QR</h3>
+        <button onclick="testBatchQR()">Generate Batch QR</button>
+        <div id="batchQRResult" class="result"></div>
+    </div>
+
+    <script>
+        function testGetRifleList() {
+            const resultDiv = document.getElementById('rifleListResult');
+            resultDiv.innerHTML = 'Loading...';
+            
+            fetch('rifle_management.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=get_rifle_list'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '<div class="success"><h4>Success!</h4>';
+                    html += `<p>Found ${data.rifles.length} rifles:</p><ul>`;
+                    data.rifles.forEach(rifle => {
+                        html += `<li>ID: ${rifle.id}, Number: ${rifle.rifle_number}, Status: ${rifle.status}, QR: ${rifle.qr_code_path || 'None'}</li>`;
+                    });
+                    html += '</ul></div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="error">Network Error: ${error.message}</div>`;
+            });
+        }
+        
+        function testSingleQR() {
+            const rifleId = document.getElementById('rifleIdInput').value;
+            const resultDiv = document.getElementById('singleQRResult');
+            
+            if (!rifleId) {
+                resultDiv.innerHTML = '<div class="error">Please enter a rifle ID</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Generating QR...';
+            
+            fetch('rifle_management.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=generate_single_qr&rifle_id=${rifleId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>QR Generated Successfully!</h4>
+                            <p><strong>Rifle:</strong> ${data.rifle_number}</p>
+                            <p><strong>Path:</strong> ${data.qr_path}</p>
+                            <img src="${data.qr_path}" alt="QR Code">
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="error">Network Error: ${error.message}</div>`;
+            });
+        }
+        
+        function testBatchQR() {
+            const resultDiv = document.getElementById('batchQRResult');
+            resultDiv.innerHTML = 'Generating batch QR codes...';
+            
+            fetch('rifle_management.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=generate_rifle_qrs'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>Batch Generation Complete!</h4>
+                            <p><strong>Generated:</strong> ${data.generated} QR codes</p>
+                            <p><strong>Total:</strong> ${data.total} rifles processed</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<div class="error">Network Error: ${error.message}</div>`;
+            });
+        }
+    </script>
+</body>
+</html>

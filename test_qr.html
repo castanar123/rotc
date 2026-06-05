@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test QR Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .qr-container { margin: 20px auto; }
+        #qrcode { margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <h1>Test QR Code</h1>
+    <p>Use this QR code to test the rifle scanner:</p>
+    
+    <div class="qr-container">
+        <div id="qrcode"></div>
+    </div>
+    
+    <p><strong>Test Data:</strong> {"rifle_id":"R001","serial":"TEST123","type":"checkout"}</p>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Generate QR code with test data
+        const testData = JSON.stringify({
+            rifle_id: "R001",
+            serial: "TEST123", 
+            type: "checkout",
+            timestamp: new Date().toISOString()
+        });
+        
+        QRCode.toCanvas(document.getElementById('qrcode'), testData, {
+            width: 300,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) {
+                console.error('QR Code generation failed:', error);
+                document.getElementById('qrcode').innerHTML = '<p>Failed to generate QR code</p>';
+            } else {
+                console.log('QR Code generated successfully');
+            }
+        });
+    </script>
+</body>
+</html>

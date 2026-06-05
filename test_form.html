@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test</title>
+    <style>
+        .form-step { display: none; }
+        .form-step.active { display: block; }
+        .test-form { padding: 20px; background: #f0f0f0; margin: 20px; }
+        .form-control { padding: 10px; margin: 5px 0; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="test-form">
+        <h2>Form Test</h2>
+        <div class="form-step active" data-step="1">
+            <h3>Step 1</h3>
+            <input type="text" class="form-control" placeholder="First Name" required>
+            <input type="email" class="form-control" placeholder="Email" required>
+        </div>
+        <div class="form-step" data-step="2">
+            <h3>Step 2</h3>
+            <input type="text" class="form-control" placeholder="Last Name" required>
+            <input type="tel" class="form-control" placeholder="Phone" required>
+        </div>
+        <button id="testBtn">Test JavaScript</button>
+    </div>
+    
+    <script>
+        console.log('Test script loaded');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            const steps = document.querySelectorAll('.form-step');
+            console.log('Found steps:', steps.length);
+            
+            const testBtn = document.getElementById('testBtn');
+            testBtn.addEventListener('click', function() {
+                console.log('Button clicked');
+                steps.forEach((step, index) => {
+                    console.log(`Step ${index + 1}:`, step.classList.contains('active'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

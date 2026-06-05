@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone Rifle Scanner Test</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+        .result {
+            background: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { border-left: 4px solid #4CAF50; }
+        .error { border-left: 4px solid #f44336; }
+        .warning { border-left: 4px solid #ff9800; }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #45a049; }
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Standalone Rifle Scanner Test</h1>
+    
+    <div class="test-section">
+        <h2>Generate Test Rifle QR</h2>
+        <button onclick="generateTestRifleQR()">Generate Test Rifle QR</button>
+        <div id="generated-qr-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>QR Camera Scanner</h2>
+        <button onclick="startScanner()">Start Camera Scanner</button>
+        <button onclick="stopScanner()">Stop Scanner</button>
+        <div id="camera-status">Camera not started</div>
+        <div id="reader"></div>
+        <div id="scan-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Manual QR Test</h2>
+        <textarea id="manual-qr-input" placeholder="Paste QR data here for manual testing..."></textarea>
+        <br>
+        <button onclick="testManualQR()">Test Manual QR</button>
+        <div id="manual-result" class="result"></div>
+    </div>
+
+    <script>
+        let html5QrCode = null;
+        let generatedTestQR = '';
+        
+        function generateTestRifleQR() {
+            const resultDiv = document.getElementById('generated-qr-result');
+            
+            try {
+                // Generate rifle data exactly like rifle_generator.html
+                const validityDays = 30;
+                const rifleData = {
+                    type: 'rifle',
+                    serial: '5454',
+                    model: 'M16A2',
+                    condition: 'Good',
+                    assignedTo: 'Unassigned',
+                    generatedAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + (validityDays * 24 * 60 * 60 * 1000)).toISOString(),
+                    id: 'RFL-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5).toUpperCase()
+                };
+                
+                console.log('Generated rifle data:', rifleData);
+                
+                // Encrypt with rifle key
+                const encrypted = CryptoJS.AES.encrypt(JSON.stringify(rifleData), 'rifle-management-system-key-2024').toString();
+                generatedTestQR = encrypted;
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `Generated test rifle QR:\n${encrypted}\n\nOriginal data:\n${JSON.stringify(rifleData, null, 2)}`;
+                
+                // Auto-populate manual input
+                document.getElementById('manual-qr-input').value = encrypted;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error generating test rifle QR: ${error.message}`;
+            }
+        }
+        
+        function startScanner() {
+            const statusDiv = document.getElementById('camera-status');
+            const resultDiv = document.getElementById('scan-result');
+            
+            if (html5QrCode) {
+                statusDiv.textContent = 'Scanner already running';
+                return;
+            }
+            
+            html5QrCode = new Html5Qrcode("reader");
+            
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText, decodedResult) => {
+                    console.log('QR Code scanned:', decodedText);
+                    statusDiv.textContent = 'QR Code detected! Processing...';
+                    processScannedQR(decodedText, resultDiv);
+                },
+                (errorMessage) => {
+                    // Ignore scanning errors (they're frequent)
+                }
+            ).then(() => {
+                statusDiv.textContent = 'Camera scanner started successfully';
+                statusDiv.className = 'success';
+            }).catch(err => {
+                statusDiv.textContent = `Error starting camera: ${err}`;
+                statusDiv.className = 'error';
+                console.error('Camera error:', err);
+            });
+        }
+        
+        function stopScanner() {
+            const statusDiv = document.getElementById('camera-status');
+            
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode = null;
+                    statusDiv.textContent = 'Camera scanner stopped';
+                    statusDiv.className = '';
+                }).catch(err => {
+                    console.error('Error stopping scanner:', err);
+                });
+            } else {
+                statusDiv.textContent = 'Scanner not running';
+            }
+        }
+        
+        function testManualQR() {
+            const input = document.getElementById('manual-qr-input').value.trim();
+            const resultDiv = document.getElementById('manual-result');
+            
+            if (!input) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please enter QR data to test!';
+                return;
+            }
+            
+            processScannedQR(input, resultDiv);
+        }
+        
+        function processScannedQR(qrData, resultDiv) {
+            try {
+                console.log('Processing QR data:', qrData);
+                
+                let decryptedData = null;
+                let decryptionMethod = '';
+                let isValid = false;
+                
+                // Check for batch-generated prefix first
+                if (qrData.startsWith('attendance-system-permanent-key-2023|')) {
+                    try {
+                        const base64Data = qrData.substring('attendance-system-permanent-key-2023|'.length);
+                        const decodedData = atob(base64Data);
+                        decryptedData = JSON.parse(decodedData);
+                        decryptionMethod = 'batch-generated (base64)';
+                        isValid = true;
+                    } catch (e) {
+                        console.log('Batch decoding failed:', e.message);
+                    }
+                }
+                
+                // Try attendance key decryption
+                if (!decryptedData) {
+                    try {
+                        const attendanceDecrypted = CryptoJS.AES.decrypt(qrData, 'attendance-system-permanent-key-2023').toString(CryptoJS.enc.Utf8);
+                        if (attendanceDecrypted) {
+                            decryptedData = JSON.parse(attendanceDecrypted);
+                            decryptionMethod = 'attendance-system-permanent-key-2023';
+                            isValid = true;
+                        }
+                    } catch (e) {
+                        console.log('Attendance key decryption failed:', e.message);
+                    }
+                }
+                
+                // Try rifle key decryption
+                if (!decryptedData) {
+                    try {
+                        const rifleDecrypted = CryptoJS.AES.decrypt(qrData, 'rifle-management-system-key-2024').toString(CryptoJS.enc.Utf8);
+                        if (rifleDecrypted) {
+                            decryptedData = JSON.parse(rifleDecrypted);
+                            decryptionMethod = 'rifle-management-system-key-2024';
+                            isValid = true;
+                        }
+                    } catch (e) {
+                        console.log('Rifle key decryption failed:', e.message);
+                    }
+                }
+                
+                if (decryptedData && isValid) {
+                    // Apply field mapping like in rifle_scanner.js
+                    if (decryptedData.serial && !decryptedData.rifle_id) {
+                        decryptedData.rifle_id = decryptedData.serial;
+                        console.log('Mapped serial to rifle_id:', decryptedData.rifle_id);
+                    }
+                    if (decryptedData.student_id && !decryptedData.cadet_id) {
+                        decryptedData.cadet_id = decryptedData.student_id;
+                        console.log('Mapped student_id to cadet_id:', decryptedData.cadet_id);
+                    }
+                    
+                    // Set type based on data structure
+                    if (!decryptedData.type) {
+                        if (decryptedData.serial || decryptedData.rifle_id) {
+                            decryptedData.type = 'rifle';
+                        } else if (decryptedData.student_id || decryptedData.cadet_id) {
+                            decryptedData.type = 'cadet';
+                        }
+                    }
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `QR Code decryption successful!\n\nDecryption method: ${decryptionMethod}\nData type: ${decryptedData.type || 'unknown'}\n\nDecrypted data:\n${JSON.stringify(decryptedData, null, 2)}`;
+                    
+                    // Additional validation for rifle QRs
+                    if (decryptedData.type === 'rifle') {
+                        const requiredFields = ['serial', 'model'];
+                        const missingFields = requiredFields.filter(field => !decryptedData[field]);
+                        
+                        if (missingFields.length > 0) {
+                            resultDiv.className = 'result warning';
+                            resultDiv.textContent += `\n\nWARNING: Missing required rifle fields: ${missingFields.join(', ')}`;
+                        }
+                        
+                        // Check expiration
+                        if (decryptedData.expiresAt) {
+                            const expirationDate = new Date(decryptedData.expiresAt);
+                            const now = new Date();
+                            if (expirationDate < now) {
+                                resultDiv.className = 'result warning';
+                                resultDiv.textContent += `\n\nWARNING: QR Code expired on ${expirationDate.toLocaleString()}`;
+                            }
+                        }
+                    }
+                    
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Failed to decrypt QR code with any available method.\n\nTried methods:\n- Batch-generated (base64)\n- attendance-system-permanent-key-2023\n- rifle-management-system-key-2024\n\nQR Data: ${qrData.substring(0, 100)}${qrData.length > 100 ? '...' : ''}`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `Error processing QR code: ${error.message}\n\nQR Data: ${qrData.substring(0, 100)}${qrData.length > 100 ? '...' : ''}`;
+                console.error('QR processing error:', error);
+            }
+        }
+        
+        // Auto-generate test QR on page load
+        window.onload = function() {
+            console.log('Page loaded, generating test rifle QR...');
+            generateTestRifleQR();
+        };
+    </script>
+</body>
+</html>

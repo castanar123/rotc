@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifle QR Generator - ROTC Management System</title>
+    <link rel="stylesheet" href="../css/tactical-theme.css">
+    <link rel="stylesheet" href="../css/dashboard-redesigned.css">
+    <link rel="stylesheet" href="../css/mobile-responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <style>
+        .rifle-generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+        
+        .generator-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .generator-form {
+            background: var(--card-bg);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: rgba(15, 20, 25, 0.95);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--military-green);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, var(--military-green), #16a34a);
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+        
+        .qr-result {
+            background: var(--card-bg);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            display: none;
+        }
+        
+        .qr-canvas {
+            margin: var(--spacing-lg) 0;
+            border: 2px solid var(--border-primary);
+            border-radius: var(--radius-md);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            margin-top: var(--spacing-lg);
+        }
+        
+        .action-btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+        
+        .action-btn:hover {
+            background: var(--military-green);
+            border-color: var(--military-green);
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-primary);
+            color: var(--text-secondary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            z-index: 1000;
+        }
+        
+        .back-btn:hover {
+            background: var(--military-green);
+            color: var(--text-primary);
+            border-color: var(--military-green);
+        }
+        .internal-only {
+            transition: opacity var(--transition-fast);
+        }
+        .internal-only.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to QR Home
+    </a>
+
+    <div class="rifle-generator-container">
+        <div class="generator-header fade-in">
+            <h1><i class="fas fa-qrcode"></i> Rifle QR Generator</h1>
+            <p>Generate secure QR codes for individual rifles</p>
+        </div>
+        
+        <div class="generator-form fade-in">
+            <form id="rifleQRForm">
+                <div class="form-group">
+                    <label for="rifleSerial" class="form-label">
+                        <i class="fas fa-barcode"></i> Rifle Serial Number
+                    </label>
+                    <input type="text" id="rifleSerial" class="form-input" required 
+                           placeholder="Enter rifle serial number" maxlength="50">
+                </div>
+                
+                <div class="form-group internal-only">
+                    <label for="rifleModel" class="form-label">
+                        <i class="fas fa-gun"></i> Rifle Model
+                    </label>
+                    <select id="rifleModel" class="form-input">
+                        <option value="">Select rifle model</option>
+                        <option value="M16A2">M16A2</option>
+                        <option value="M16A4">M16A4</option>
+                        <option value="M4A1">M4A1</option>
+                        <option value="AR-15">AR-15</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group internal-only">
+                    <label for="rifleCondition" class="form-label">
+                        <i class="fas fa-check-circle"></i> Condition
+                    </label>
+                    <select id="rifleCondition" class="form-input">
+                        <option value="">Select condition</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Needs Maintenance">Needs Maintenance</option>
+                    </select>
+                </div>
+                
+                <div class="form-group internal-only">
+                    <label for="assignedTo" class="form-label">
+                        <i class="fas fa-user"></i> Assigned To (Optional)
+                    </label>
+                    <input type="text" id="assignedTo" class="form-input" 
+                           placeholder="Cadet name or ID">
+                </div>
+                
+                <div class="form-group internal-only">
+                    <label for="validityDays" class="form-label">
+                        <i class="fas fa-calendar"></i> QR Code Validity (Days)
+                    </label>
+                    <select id="validityDays" class="form-input">
+                        <option value="30">30 Days</option>
+                        <option value="60">60 Days</option>
+                        <option value="90">90 Days</option>
+                        <option value="180">180 Days</option>
+                        <option value="365">1 Year</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="qrFormat" class="form-label">
+                        <i class="fas fa-code"></i> QR Format
+                    </label>
+                    <select id="qrFormat" class="form-input" required>
+                        <option value="internal" selected>Internal (Encrypted - for this system)</option>
+                        <option value="external">External (ROTC_QR_V1 - for other systems)</option>
+                    </select>
+                    <p style="margin-top: 6px; font-size: 0.85rem; color: var(--text-secondary);">
+                        For <strong>External</strong> format, only the <strong>Rifle Serial Number</strong> is required.
+                        Model, condition, and validity are used only for the internal encrypted format.
+                    </p>
+                </div>
+                
+                <button type="submit" class="generate-btn">
+                    <i class="fas fa-qrcode"></i> Generate Rifle QR Code
+                </button>
+            </form>
+        </div>
+        
+        <div id="qrResult" class="qr-result fade-in">
+            <h3><i class="fas fa-check-circle"></i> QR Code Generated Successfully</h3>
+            <canvas id="qrCanvas" class="qr-canvas"></canvas>
+            <div id="qrInfo"></div>
+            <div class="action-buttons">
+                <button id="downloadBtn" class="action-btn">
+                    <i class="fas fa-download"></i> Download PNG
+                </button>
+                <button id="printBtn" class="action-btn">
+                    <i class="fas fa-print"></i> Print QR Code
+                </button>
+                <button id="generateAnother" class="action-btn">
+                    <i class="fas fa-plus"></i> Generate Another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Encryption key - same as rifle management system
+        const ENCRYPTION_KEY = 'rifle-management-system-key-2024';
+        const QR_KEY_PREFIX = 'ROTC_QR_V1::';
+        
+        function encodeROTCQR(payload) {
+            return btoa(QR_KEY_PREFIX + JSON.stringify(payload));
+        }
+
+        function updateFormForFormat() {
+            const qrFormat = document.getElementById('qrFormat').value || 'internal';
+            const internalFields = document.querySelectorAll('.internal-only');
+            internalFields.forEach(group => {
+                if (qrFormat === 'external') {
+                    group.classList.add('hidden');
+                } else {
+                    group.classList.remove('hidden');
+                }
+            });
+        }
+
+        document.getElementById('qrFormat').addEventListener('change', updateFormForFormat);
+
+        document.getElementById('rifleQRForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateRifleQR();
+        });
+        
+        function generateRifleQR() {
+            const serial = document.getElementById('rifleSerial').value.trim();
+            const qrFormat = document.getElementById('qrFormat').value || 'internal';
+            let model = document.getElementById('rifleModel').value;
+            let condition = document.getElementById('rifleCondition').value;
+            const assignedTo = document.getElementById('assignedTo').value.trim();
+            let validityDays = parseInt(document.getElementById('validityDays').value);
+
+            if (!serial) {
+                alert('Please enter the rifle serial number');
+                return;
+            }
+
+            if (qrFormat === 'internal') {
+                // Internal (encrypted) format uses full rifle details
+                if (!model || !condition || !validityDays || Number.isNaN(validityDays)) {
+                    alert('For Internal format, please select model, condition, and validity.');
+                    return;
+                }
+            } else {
+                // External format only really needs the serial; fill sensible defaults for display
+                if (!model) {
+                    model = 'N/A';
+                }
+                if (!condition) {
+                    condition = 'N/A';
+                }
+                if (!validityDays || Number.isNaN(validityDays)) {
+                    validityDays = 365; // default 1 year for display purposes
+                }
+            }
+
+            const rifleId = generateUniqueId();
+            
+            // Create rifle data object
+            const rifleData = {
+                type: 'rifle',
+                serial: serial,
+                model: model,
+                condition: condition,
+                assignedTo: assignedTo || 'Unassigned',
+                generatedAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + (validityDays * 24 * 60 * 60 * 1000)).toISOString(),
+                id: rifleId
+            };
+            
+            let qrContent;
+            if (qrFormat === 'external') {
+                const qrPayload = {
+                    system: 'rotc_system',
+                    type: 'rifle',
+                    rifle_id: rifleId,
+                    rifle_number: serial
+                };
+                qrContent = encodeROTCQR(qrPayload);
+            } else {
+                qrContent = CryptoJS.AES.encrypt(JSON.stringify(rifleData), ENCRYPTION_KEY).toString();
+            }
+            
+            // Generate QR code
+            const canvas = document.getElementById('qrCanvas');
+            QRCode.toCanvas(canvas, qrContent, {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#0f1419',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) {
+                    console.error(error);
+                    alert('Error generating QR code');
+                    return;
+                }
+                
+                // Show result
+                document.getElementById('qrResult').style.display = 'block';
+                document.getElementById('qrInfo').innerHTML = `
+                    <div style="text-align: left; margin-top: 20px;">
+                        <p><strong>Serial:</strong> ${serial}</p>
+                        <p><strong>Model:</strong> ${model}</p>
+                        <p><strong>Condition:</strong> ${condition}</p>
+                        <p><strong>Assigned To:</strong> ${assignedTo || 'Unassigned'}</p>
+                        <p><strong>Valid Until:</strong> ${new Date(rifleData.expiresAt).toLocaleDateString()}</p>
+                        <p><strong>QR ID:</strong> ${rifleData.id}</p>
+                    </div>
+                `;
+                
+                // Scroll to result
+                document.getElementById('qrResult').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+        
+        function generateUniqueId() {
+            return 'RFL-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+        
+        // Download functionality
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const canvas = document.getElementById('qrCanvas');
+            const link = document.createElement('a');
+            link.download = `rifle-qr-${document.getElementById('rifleSerial').value}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+        
+        // Print functionality
+        document.getElementById('printBtn').addEventListener('click', function() {
+            const canvas = document.getElementById('qrCanvas');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Rifle QR Code - ${document.getElementById('rifleSerial').value}</title>
+                        <style>
+                            body { text-align: center; font-family: Arial, sans-serif; }
+                            .print-header { margin-bottom: 20px; }
+                            .qr-info { margin-top: 20px; text-align: left; max-width: 300px; margin-left: auto; margin-right: auto; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-header">
+                            <h2>ROTC Rifle QR Code</h2>
+                            <h3>Serial: ${document.getElementById('rifleSerial').value}</h3>
+                        </div>
+                        <img src="${canvas.toDataURL()}" style="border: 2px solid #000;">
+                        <div class="qr-info">
+                            ${document.getElementById('qrInfo').innerHTML}
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        });
+        
+        // Generate another
+        document.getElementById('generateAnother').addEventListener('click', function() {
+            document.getElementById('rifleQRForm').reset();
+            document.getElementById('qrResult').style.display = 'none';
+            document.getElementById('rifleSerial').focus();
+        });
+        
+        // Focus on first input
+        document.getElementById('rifleSerial').focus();
+    </script>
+</body>
+</html>

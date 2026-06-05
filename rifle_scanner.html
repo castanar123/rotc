@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="cache-control" content="max-age=0">
+    <meta name="expires" content="0">
+    <meta name="pragma" content="no-cache">
+    <title>sRifle QR Scanner - ROTC Management System</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/tactical-theme.css?v=<?php echo time() . rand(1000,9999); ?>">
+    <link rel="stylesheet" href="css/dashboard-redesigned.css?v=<?php echo time() . rand(1000,9999); ?>">
+    <link rel="stylesheet" href="css/mobile-responsive.css?v=<?php echo time() . rand(1000,9999); ?>">
+    <link rel="stylesheet" href="css/rifle-mobile.css?v=<?php echo time() . rand(1000,9999); ?>">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <!-- Crypto JS for decryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <style>
+        /* Rifle Scanner Specific Styles - Admin Dashboard Theme */
+        .scanner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-primary);
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--text-accent);
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .scanner-section {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-primary);
+            border: 1px solid var(--border-primary);
+            backdrop-filter: blur(10px);
+        }
+        
+        .scanner-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-accent);
+            margin-bottom: var(--spacing-lg);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .operation-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .operation-btn {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border: 2px solid var(--border-primary);
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            font-weight: 600;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .operation-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.2), transparent);
+            transition: left var(--transition-normal);
+        }
+        
+        .operation-btn:hover::before {
+            left: 100%;
+        }
+        
+        .operation-btn.active {
+            background: linear-gradient(135deg, var(--military-green) 0%, #1e7e34 100%);
+            border-color: var(--military-green);
+            color: white;
+            box-shadow: var(--shadow-accent);
+            transform: translateY(-2px);
+        }
+        
+        .operation-btn:hover {
+            border-color: var(--military-green);
+            color: var(--text-accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-accent);
+        }
+        
+        .scanner-camera-section {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+        
+        #camera-status {
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+        }
+        
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 2px solid var(--border-primary);
+            box-shadow: var(--shadow-primary);
+        }
+        
+        .scanner-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .scanner-btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #00cc66 100%);
+            color: var(--bg-primary);
+            box-shadow: 0 4px 15px rgba(0, 255, 127, 0.3);
+        }
+        
+        .stop-btn {
+            background: linear-gradient(135deg, var(--danger) 0%, #cc0000 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+        }
+        
+        .scanner-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .scan-result {
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            display: none;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .result-success {
+            background: linear-gradient(135deg, rgba(0, 255, 127, 0.1) 0%, rgba(0, 255, 127, 0.05) 100%);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+        }
+        
+        .result-error {
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.1) 0%, rgba(255, 68, 68, 0.05) 100%);
+            color: var(--danger);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+        }
+        
+        .result-warning {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+            color: var(--warning);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-primary);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--military-green), var(--success));
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-accent);
+        }
+        
+        .stat-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-accent);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        
+        .recent-activities {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--military-green) var(--bg-secondary);
+        }
+        
+        .recent-activities::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .recent-activities::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 3px;
+        }
+        
+        .recent-activities::-webkit-scrollbar-thumb {
+            background: var(--military-green);
+            border-radius: 3px;
+        }
+        
+        .activity-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .activity-item:hover {
+            background: var(--bg-secondary);
+            transform: translateX(5px);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-info {
+            flex: 1;
+        }
+        
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .activity-type {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .type-assign {
+            background: linear-gradient(135deg, rgba(0, 191, 255, 0.2) 0%, rgba(0, 191, 255, 0.1) 100%);
+            color: var(--info);
+            border: 1px solid rgba(0, 191, 255, 0.3);
+        }
+        
+        .type-return {
+            background: linear-gradient(135deg, rgba(0, 255, 127, 0.2) 0%, rgba(0, 255, 127, 0.1) 100%);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+        }
+        
+        /* Debug Panel Styles */
+        .debug-content {
+            margin-top: var(--spacing-md);
+        }
+        
+        .debug-toggle {
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .debug-info {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--border-primary);
+        }
+        
+        .debug-section {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--military-green);
+        }
+        
+        .debug-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .debug-section h4 {
+            color: var(--text-accent);
+            margin-bottom: var(--spacing-sm);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        
+        .debug-data {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .debug-data.error {
+            border-color: var(--danger);
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .debug-data.success {
+            border-color: var(--success);
+            background: rgba(0, 255, 127, 0.1);
+            color: var(--success);
+        }
+        
+        .debug-data.warning {
+            border-color: var(--warning);
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .scanner-container {
+                padding: var(--spacing-md);
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .operation-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .scanner-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Sidebar Toggle Button -->
+    <button class="sidebar-toggle-fixed" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="logo-text">Admin Command</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="admin_dashboard.php" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="QR/home.php" class="nav-link">
+                            <i class="fas fa-qrcode"></i>
+                            <span>QR Attendance</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="QR/dashboard.php" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Attendance Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="rifle_management.php" class="nav-link">
+                            <i class="fas fa-crosshairs"></i>
+                            <span>Rifle Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="rifle_scanner.php" class="nav-link active">
+                            <i class="fas fa-qrcode"></i>
+                            <span>QR Scanner</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="QR/setup.php" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>System Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="QR/https_test.php" class="nav-link">
+                            <i class="fas fa-lock"></i>
+                            <span>HTTPS Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="user_management.php" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin/registration_approvals.php" class="nav-link">
+                            <i class="fas fa-user-check"></i>
+                            <span>Registration Approvals</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="advance_rotc_management.php" class="nav-link">
+                            <i class="fas fa-star-of-life"></i>
+                            <span>Advance Officer Respondents</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports/view_report.php" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="announcements/view.php" class="nav-link">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin/missing_ids.php" class="nav-link">
+                            <i class="fas fa-id-card-alt"></i>
+                            <span>Missing IDs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="grades/manage_grades.php" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Grades</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="settings.php" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="logout.php" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="scanner-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1><i class="fas fa-crosshairs"></i> Rifle QR Scanner</h1>
+                    <p>Advanced tactical rifle management system with real-time tracking</p>
+                </div>
+
+                <!-- Operation Selector -->
+                <div class="scanner-section">
+                    <h3><i class="fas fa-crosshairs"></i> Scanner Mode</h3>
+                    <div class="operation-selector">
+                        <button class="operation-btn active" data-operation="assign">
+                            <i class="fas fa-plus-circle"></i> Assign Rifle
+                        </button>
+                        <button class="operation-btn" data-operation="return">
+                            <i class="fas fa-minus-circle"></i> Return Rifle
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scanner Section -->
+                <div class="scanner-section">
+                    <h3><i class="fas fa-camera"></i> QR Code Scanner</h3>
+                    <div class="scanner-camera-section">
+                        <div id="camera-status">Camera not initialized</div>
+                        <div id="reader"></div>
+                        <div class="scanner-controls">
+                            <button id="start-scanner" class="scanner-btn start-btn">
+                                <i class="fas fa-play"></i> Start Scanner
+                            </button>
+                            <button id="stop-scanner" class="scanner-btn stop-btn">
+                                <i class="fas fa-stop"></i> Stop Scanner
+                            </button>
+                        </div>
+                        <div id="scan-result" class="scan-result"></div>
+                    </div>
+                </div>
+
+                <!-- Debug Panel -->
+                <div class="scanner-section" id="debug-panel" style="display: none;">
+                    <h3><i class="fas fa-bug"></i> Debug Information</h3>
+                    <div class="debug-content">
+                        <div class="debug-toggle">
+                            <button id="toggle-debug" class="scanner-btn" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
+                                <i class="fas fa-eye"></i> Show Debug
+                            </button>
+                            <button id="clear-debug" class="scanner-btn" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; margin-left: 10px;">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                        <div id="debug-info" class="debug-info" style="display: none;">
+                            <div class="debug-section">
+                                <h4><i class="fas fa-info-circle"></i> Last Scan Details</h4>
+                                <div id="debug-last-scan" class="debug-data">No scan data available</div>
+                            </div>
+                            <div class="debug-section">
+                                <h4><i class="fas fa-key"></i> Decryption Attempts</h4>
+                                <div id="debug-decryption" class="debug-data">No decryption attempts</div>
+                            </div>
+                            <div class="debug-section">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Error Details</h4>
+                                <div id="debug-errors" class="debug-data">No errors</div>
+                            </div>
+                            <div class="debug-section">
+                                <h4><i class="fas fa-cogs"></i> Workflow State</h4>
+                                <div id="debug-workflow" class="debug-data">No workflow data</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan Statistics -->
+                <div class="scanner-section">
+                    <h3>Scan Statistics</h3>
+                    <div id="scan-stats" class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value">0</span>
+                            <span class="stat-label">Total Scans</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">0</span>
+                            <span class="stat-label">Successful</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">0</span>
+                            <span class="stat-label">Failed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="scanner-section">
+                    <h3>Recent Activities</h3>
+                    <div id="recent-activities" class="recent-activities">
+                        <p style="text-align: center; color: #666;">No recent activities</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="rifle_scanner.js"></script>
+    <script>
+        // Scanner functionality
+        let html5QrcodeScanner;
+        let scanStep = 1; // For assignment: 1 = cadet, 2 = rifle
+        let scannedCadet = null;
+        
+        // Initialize operation selector
+        document.addEventListener('DOMContentLoaded', function() {
+            // Operation button handlers
+            document.querySelectorAll('.operation-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectOperation(this.dataset.operation);
+                });
+            });
+            
+            // Scanner button handlers
+            document.getElementById('start-scanner').addEventListener('click', startScanner);
+            document.getElementById('stop-scanner').addEventListener('click', stopScanner);
+            
+            // Initialize with assign operation
+            selectOperation('assign');
+            
+            // Sidebar toggle function - Updated to match admin dashboard
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
+        
+        function selectOperation(operation) {
+            currentOperation = operation;
+            scanStep = 1;
+            scannedCadet = null;
+            
+            // Update button states
+            document.querySelectorAll('.operation-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-operation="${operation}"]`).classList.add('active');
+            
+            // Update UI text
+            const statusDiv = document.getElementById('camera-status');
+            if (operation === 'assign') {
+                statusDiv.textContent = 'Ready to scan cadet and rifle QR codes for assignment';
+            } else {
+                statusDiv.textContent = 'Ready to scan rifle QR code for return';
+            }
+            
+            // Clear any existing results
+            const resultDiv = document.getElementById('scan-result');
+            resultDiv.style.display = 'none';
+        }
+        
+        function startScanner() {
+            const startBtn = document.getElementById('start-scanner');
+            const stopBtn = document.getElementById('stop-scanner');
+            const statusDiv = document.getElementById('camera-status');
+            
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing camera...';
+            
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { 
+                    fps: 10, 
+                    qrbox: { width: 300, height: 300 },
+                    aspectRatio: 1.0,
+                    showTorchButtonIfSupported: true
+                },
+                false
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            
+            setTimeout(() => {
+                if (currentOperation === 'assign') {
+                    statusDiv.innerHTML = '<i class="fas fa-camera"></i> Scanner active - Scan cadet QR first, then rifle QR';
+                } else {
+                    statusDiv.innerHTML = '<i class="fas fa-camera"></i> Scanner active - Scan rifle QR to return';
+                }
+            }, 2000);
+        }
+        
+        function stopScanner() {
+            const startBtn = document.getElementById('start-scanner');
+            const stopBtn = document.getElementById('stop-scanner');
+            const statusDiv = document.getElementById('camera-status');
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+            }
+            
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            statusDiv.innerHTML = '<i class="fas fa-camera-slash"></i> Scanner stopped';
+            
+            // Reset scan state
+            scanStep = 1;
+            scannedCadet = null;
+            
+            // Clear any existing results
+            const resultDiv = document.getElementById('scan-result');
+            resultDiv.style.display = 'none';
+        }
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`Code matched = ${decodedText}`, decodedResult);
+            
+            if (currentOperation === 'assign') {
+                handleAssignmentScan(decodedText);
+            } else {
+                handleReturnScan(decodedText);
+            }
+        }
+        
+        function onScanFailure(error) {
+            // Handle scan failure, usually better to ignore and keep scanning
+            console.warn(`Code scan error = ${error}`);
+        }
+        
+        function handleAssignmentScan(qrData) {
+            if (scanStep === 1) {
+                // First scan should be cadet QR
+                scannedCadet = qrData;
+                showResult(`Cadet scanned: ${qrData}. Now scan rifle QR code.`, 'warning');
+                scanStep = 2;
+                
+                const statusDiv = document.getElementById('camera-status');
+                statusDiv.innerHTML = '<i class="fas fa-camera"></i> Step 2: Scan rifle QR code';
+            } else {
+                // Second scan should be rifle QR
+                assignRifle(scannedCadet, qrData);
+            }
+        }
+        
+        function handleReturnScan(qrData) {
+            returnRifle(qrData);
+        }
+        
+        function assignRifle(cadetId, rifleId) {
+            // Here you would make an API call to assign the rifle
+            console.log(`Assigning rifle ${rifleId} to cadet ${cadetId}`);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showResult(`Successfully assigned rifle ${rifleId} to cadet ${cadetId}`, 'success');
+                updateStats('assign');
+                addActivity('assign', cadetId, rifleId);
+                
+                // Reset for next scan
+                scanStep = 1;
+                scannedCadet = null;
+                
+                const statusDiv = document.getElementById('camera-status');
+                statusDiv.innerHTML = '<i class="fas fa-camera"></i> Ready for next assignment - Scan cadet QR first';
+            }, 1000);
+        }
+        
+        function returnRifle(rifleId) {
+            // Here you would make an API call to return the rifle
+            console.log(`Returning rifle ${rifleId}`);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showResult(`Successfully returned rifle ${rifleId}`, 'success');
+                updateStats('return');
+                addActivity('return', null, rifleId);
+                
+                const statusDiv = document.getElementById('camera-status');
+                statusDiv.innerHTML = '<i class="fas fa-camera"></i> Ready for next return - Scan rifle QR code';
+            }, 1000);
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('scan-result');
+            resultDiv.className = `scan-result result-${type}`;
+            resultDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            resultDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds for success/warning messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    resultDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        let stats = {
+            total: 0,
+            successful: 0,
+            failed: 0
+        };
+        
+        function updateStats(operation) {
+            stats.total++;
+            stats.successful++;
+            
+            document.querySelector('.stat-item:nth-child(1) .stat-value').textContent = stats.total;
+            document.querySelector('.stat-item:nth-child(2) .stat-value').textContent = stats.successful;
+            document.querySelector('.stat-item:nth-child(3) .stat-value').textContent = stats.failed;
+        }
+        
+        function addActivity(type, cadetId, rifleId) {
+            const activitiesDiv = document.getElementById('recent-activities');
+            
+            // Remove "No recent activities" message if it exists
+            const noActivities = activitiesDiv.querySelector('p');
+            if (noActivities) {
+                noActivities.remove();
+            }
+            
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            let activityText;
+            if (type === 'assign') {
+                activityText = `Rifle ${rifleId} assigned to Cadet ${cadetId}`;
+            } else {
+                activityText = `Rifle ${rifleId} returned`;
+            }
+            
+            activityItem.innerHTML = `
+                <div class="activity-info">
+                    <div>${activityText}</div>
+                    <div class="activity-time">${timeString}</div>
+                </div>
+                <span class="activity-type type-${type}">${type.toUpperCase()}</span>
+            `;
+            
+            // Add to top of activities
+            activitiesDiv.insertBefore(activityItem, activitiesDiv.firstChild);
+            
+            // Keep only last 10 activities
+            const activities = activitiesDiv.querySelectorAll('.activity-item');
+            if (activities.length > 10) {
+                activities[activities.length - 1].remove();
+            }
+        }
+        
+        // Debug Panel Functions
+        function initializeDebugPanel() {
+            const toggleBtn = document.getElementById('toggle-debug');
+            const clearBtn = document.getElementById('clear-debug');
+            const debugPanel = document.getElementById('debug-panel');
+            const debugInfo = document.getElementById('debug-info');
+            
+            let debugVisible = false;
+            
+            toggleBtn.addEventListener('click', function() {
+                debugVisible = !debugVisible;
+                debugInfo.style.display = debugVisible ? 'block' : 'none';
+                toggleBtn.innerHTML = debugVisible ? 
+                    '<i class="fas fa-eye-slash"></i> Hide Debug' : 
+                    '<i class="fas fa-eye"></i> Show Debug';
+            });
+            
+            clearBtn.addEventListener('click', function() {
+                clearDebugInfo();
+            });
+        }
+        
+        function showDebugPanel() {
+            const debugPanel = document.getElementById('debug-panel');
+            debugPanel.style.display = 'block';
+        }
+        
+        function updateDebugInfo(debugData) {
+            showDebugPanel();
+            
+            // Update last scan details
+            const lastScanDiv = document.getElementById('debug-last-scan');
+            lastScanDiv.className = 'debug-data';
+            lastScanDiv.textContent = JSON.stringify({
+                timestamp: debugData.timestamp,
+                rawData: debugData.rawData,
+                operation: debugData.operation,
+                workflowStep: debugData.workflowStep
+            }, null, 2);
+            
+            // Update decryption attempts
+            const decryptionDiv = document.getElementById('debug-decryption');
+            decryptionDiv.className = 'debug-data';
+            if (debugData.decryptionAttempts && debugData.decryptionAttempts.length > 0) {
+                decryptionDiv.textContent = debugData.decryptionAttempts.map(attempt => 
+                    `Key: ${attempt.key}\nStatus: ${attempt.status}\nError: ${attempt.error || 'None'}\nResult: ${attempt.result || 'None'}`
+                ).join('\n\n---\n\n');
+            } else {
+                decryptionDiv.textContent = 'No decryption attempts recorded';
+            }
+            
+            // Update error details
+            const errorsDiv = document.getElementById('debug-errors');
+            if (debugData.errors && debugData.errors.length > 0) {
+                errorsDiv.className = 'debug-data error';
+                errorsDiv.textContent = debugData.errors.join('\n\n');
+            } else {
+                errorsDiv.className = 'debug-data success';
+                errorsDiv.textContent = 'No errors detected';
+            }
+            
+            // Update workflow state
+            const workflowDiv = document.getElementById('debug-workflow');
+            workflowDiv.className = 'debug-data';
+            workflowDiv.textContent = JSON.stringify({
+                currentOperation: debugData.operation,
+                scanStep: debugData.workflowStep,
+                isWaitingForRifle: debugData.isWaitingForRifle,
+                scannedCadet: debugData.scannedCadet,
+                finalResult: debugData.finalResult
+            }, null, 2);
+        }
+        
+        function clearDebugInfo() {
+            document.getElementById('debug-last-scan').textContent = 'No scan data available';
+            document.getElementById('debug-decryption').textContent = 'No decryption attempts';
+            document.getElementById('debug-errors').textContent = 'No errors';
+            document.getElementById('debug-workflow').textContent = 'No workflow data';
+            
+            // Reset classes
+            document.getElementById('debug-last-scan').className = 'debug-data';
+            document.getElementById('debug-decryption').className = 'debug-data';
+            document.getElementById('debug-errors').className = 'debug-data';
+            document.getElementById('debug-workflow').className = 'debug-data';
+        }
+        
+        // Initialize debug panel when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDebugPanel();
+        });
+    </script>
+</body>
+</html>

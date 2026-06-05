@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .result { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard API Test</h1>
+    
+    <div class="test-section">
+        <h2>API Test</h2>
+        <button onclick="testAPI()">Test API Call</button>
+        <div id="api-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>DOM Elements Test</h2>
+        <button onclick="testElements()">Test DOM Elements</button>
+        <div id="element-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Sample Data Display</h2>
+        <p>Total Strength: <span id="total-strength">0</span></p>
+        <p>Total Present: <span id="total-present">0</span></p>
+        <p>Male Present: <span id="male-present-stat">0</span></p>
+        <p>Female Present: <span id="female-present-stat">0</span></p>
+        <p>Male Strength: <span id="male-strength">0</span></p>
+        <p>Female Strength: <span id="female-strength">0</span></p>
+    </div>
+    
+    <script>
+        function testAPI() {
+            const url = 'session.php?action=get_stats&td=1&semester=1&date=2025-08-08';
+            const resultDiv = document.getElementById('api-result');
+            
+            resultDiv.innerHTML = 'Testing API...';
+            
+            fetch(url)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API Response:', data);
+                    resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                    // Update sample elements
+                    if (data.success && data.stats) {
+                        updateSampleElements(data.stats);
+                    }
+                })
+                .catch(error => {
+                    console.error('API Error:', error);
+                    resultDiv.innerHTML = 'Error: ' + error.message;
+                });
+        }
+        
+        function testElements() {
+            const elements = [
+                'total-strength', 'total-present', 
+                'male-present-stat', 'female-present-stat',
+                'male-strength', 'female-strength'
+            ];
+            
+            const resultDiv = document.getElementById('element-result');
+            let result = 'Element Test Results:\n';
+            
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                result += `${id}: ${element ? 'Found' : 'NOT FOUND'}\n`;
+            });
+            
+            resultDiv.innerHTML = '<pre>' + result + '</pre>';
+        }
+        
+        function updateSampleElements(stats) {
+            // Update total stats
+            document.getElementById('total-strength').textContent = stats.total?.strength || 0;
+            document.getElementById('total-present').textContent = stats.total?.present || 0;
+            
+            // Update gender stats
+            const maleStats = stats.by_gender?.Male || stats.by_gender?.male || {strength: 0, present: 0};
+            const femaleStats = stats.by_gender?.Female || stats.by_gender?.female || {strength: 0, present: 0};
+            
+            document.getElementById('male-present-stat').textContent = maleStats.present || 0;
+            document.getElementById('female-present-stat').textContent = femaleStats.present || 0;
+            document.getElementById('male-strength').textContent = maleStats.strength || 0;
+            document.getElementById('female-strength').textContent = femaleStats.strength || 0;
+            
+            console.log('Updated sample elements with:', { maleStats, femaleStats });
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            testElements();
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html>

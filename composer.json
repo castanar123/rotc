@@ -1,0 +1,8 @@
+{
+    "name": "rotc/website",
+    "description": "ROTC Attendance and Profile Management System",
+    "require": {
+        "chillerlan/php-qrcode": "^5.0",
+        "phpoffice/phpword": "^1.3"
+    }
+}

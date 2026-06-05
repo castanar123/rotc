@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rifle QR Generation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .qr-canvas {
+            border: 2px solid #333;
+            margin: 10px 0;
+        }
+        .data-display {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Rifle QR Code Generation</h1>
+    <p>This test generates a rifle QR code using the exact same method as QR/rifle_generator.html</p>
+    
+    <div class="test-section">
+        <h2>Test Rifle QR Generation</h2>
+        <button onclick="generateTestRifleQR()">Generate Test Rifle QR</button>
+        <div id="testResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Decryption (Scanner Logic)</h2>
+        <button onclick="testDecryption()">Test Decryption Logic</button>
+        <div id="decryptionResult"></div>
+    </div>
+
+    <script>
+        // Same encryption key as rifle generator
+        const ENCRYPTION_KEY = 'rifle-management-system-key-2024';
+        let lastEncryptedData = '';
+        
+        function generateTestRifleQR() {
+            console.log('=== GENERATING TEST RIFLE QR ===');
+            
+            // Create test rifle data - exact same structure as rifle generator
+            const rifleData = {
+                type: 'rifle',
+                serial: 'TEST123',
+                model: 'M16A2',
+                condition: 'Good',
+                assignedTo: 'Unassigned',
+                generatedAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+                id: 'RFL-' + Date.now().toString(36) + '-TEST'
+            };
+            
+            console.log('Rifle data object:', rifleData);
+            
+            // Convert to JSON string
+            const jsonString = JSON.stringify(rifleData);
+            console.log('JSON string:', jsonString);
+            
+            // Encrypt using CryptoJS.AES.encrypt - same as rifle generator
+            const encryptedData = CryptoJS.AES.encrypt(jsonString, ENCRYPTION_KEY).toString();
+            console.log('Encrypted data:', encryptedData);
+            lastEncryptedData = encryptedData;
+            
+            // Display results without QR visualization (focus on data testing)
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.innerHTML = `
+                <h3>Generated Test Rifle QR Data</h3>
+                <div class="data-display">
+                    <strong>✅ QR Data Generated Successfully</strong><br>
+                    <em>This encrypted data would be embedded in the QR code</em>
+                </div>
+                <div class="data-display">
+                    <strong>Original Rifle Data:</strong><br>
+                    ${JSON.stringify(rifleData, null, 2)}
+                </div>
+                <div class="data-display">
+                    <strong>Encrypted Data (QR Content):</strong><br>
+                    ${encryptedData}
+                </div>
+                <div class="data-display">
+                    <strong>Data Length:</strong> ${encryptedData.length} characters<br>
+                    <strong>Encryption Key:</strong> ${ENCRYPTION_KEY}
+                </div>
+            `;
+            
+            console.log('Test rifle QR data generated successfully');
+            console.log('Ready for decryption test');
+        }
+        
+        function testDecryption() {
+            if (!lastEncryptedData) {
+                alert('Please generate a test QR first');
+                return;
+            }
+            
+            console.log('=== TESTING DECRYPTION LOGIC ===');
+            console.log('Testing with encrypted data:', lastEncryptedData);
+            
+            try {
+                // Test decryption with attendance key (should fail)
+                console.log('Testing with attendance key...');
+                try {
+                    const attendanceDecrypt = CryptoJS.AES.decrypt(lastEncryptedData, 'attendance-system-permanent-key-2023');
+                    const attendanceText = attendanceDecrypt.toString(CryptoJS.enc.Utf8);
+                    console.log('Attendance key result:', attendanceText || 'FAILED');
+                } catch (e) {
+                    console.log('Attendance key failed:', e.message);
+                }
+                
+                // Test decryption with rifle key (should succeed)
+                console.log('Testing with rifle key...');
+                const rifleDecrypt = CryptoJS.AES.decrypt(lastEncryptedData, 'rifle-management-system-key-2024');
+                const rifleText = rifleDecrypt.toString(CryptoJS.enc.Utf8);
+                console.log('Rifle key result:', rifleText);
+                
+                if (rifleText) {
+                    const parsedData = JSON.parse(rifleText);
+                    console.log('Parsed rifle data:', parsedData);
+                    
+                    // Test field mapping
+                    if (parsedData.serial && !parsedData.rifle_id) {
+                        parsedData.rifle_id = parsedData.serial;
+                        console.log('Mapped serial to rifle_id:', parsedData.rifle_id);
+                    }
+                    
+                    const resultDiv = document.getElementById('decryptionResult');
+                    resultDiv.innerHTML = `
+                        <h3>Decryption Test Results</h3>
+                        <div class="data-display">
+                            <strong>✅ Rifle Key Decryption: SUCCESS</strong><br>
+                            Decrypted Data: ${rifleText}
+                        </div>
+                        <div class="data-display">
+                            <strong>Parsed Object:</strong><br>
+                            ${JSON.stringify(parsedData, null, 2)}
+                        </div>
+                        <div class="data-display">
+                            <strong>Field Mapping:</strong><br>
+                            serial: ${parsedData.serial}<br>
+                            rifle_id: ${parsedData.rifle_id}<br>
+                            type: ${parsedData.type}
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Rifle key decryption returned empty result');
+                }
+                
+            } catch (error) {
+                console.error('Decryption test failed:', error);
+                const resultDiv = document.getElementById('decryptionResult');
+                resultDiv.innerHTML = `
+                    <h3>Decryption Test Results</h3>
+                    <div class="data-display" style="color: red;">
+                        <strong>❌ DECRYPTION FAILED</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-generate test QR on page load
+        window.onload = function() {
+            console.log('Page loaded, generating test QR...');
+            generateTestRifleQR();
+        };
+    </script>
+</body>
+</html>

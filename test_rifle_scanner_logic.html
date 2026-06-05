@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rifle Scanner Logic</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .code-block {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔫 Rifle Scanner Logic Test</h1>
+    <p>This page tests the exact rifle QR scanning logic from rifle_scanner.js</p>
+    
+    <div class="test-container">
+        <h2>Step 1: Generate Test Rifle QR Data</h2>
+        <button onclick="generateTestData()">Generate Test Rifle QR</button>
+        <div id="generateResult"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Step 2: Test Scanner Decryption Logic</h2>
+        <button onclick="testScannerLogic()">Test Scanner Logic</button>
+        <div id="scannerResult"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Step 3: Test Assignment Workflow</h2>
+        <button onclick="testAssignmentWorkflow()">Test Assignment Workflow</button>
+        <div id="workflowResult"></div>
+    </div>
+
+    <script>
+        let testEncryptedData = '';
+        let currentStep = 'waiting_for_cadet';
+        let scannedCadet = null;
+        
+        function generateTestData() {
+            console.log('=== GENERATING TEST RIFLE QR DATA ===');
+            
+            // Create test rifle data - exact same structure as rifle generator
+            const rifleData = {
+                type: 'rifle',
+                serial: 'TEST123',
+                model: 'M16A2',
+                condition: 'Good',
+                assignedTo: 'Unassigned',
+                generatedAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(),
+                id: 'RFL-' + Date.now().toString(36) + '-TEST'
+            };
+            
+            console.log('Rifle data object:', rifleData);
+            
+            // Encrypt using CryptoJS.AES.encrypt - same as rifle generator
+            const jsonString = JSON.stringify(rifleData);
+            const encryptedData = CryptoJS.AES.encrypt(jsonString, 'rifle-management-system-key-2024').toString();
+            testEncryptedData = encryptedData;
+            
+            console.log('Encrypted data:', encryptedData);
+            
+            const resultDiv = document.getElementById('generateResult');
+            resultDiv.innerHTML = `
+                <div class="test-result success">
+                    <h3>✅ Test Rifle QR Data Generated</h3>
+                    <p><strong>Serial:</strong> ${rifleData.serial}</p>
+                    <p><strong>Model:</strong> ${rifleData.model}</p>
+                    <p><strong>Type:</strong> ${rifleData.type}</p>
+                    <div class="code-block">
+                        <strong>Encrypted Data:</strong><br>
+                        ${encryptedData}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function testScannerLogic() {
+            if (!testEncryptedData) {
+                alert('Please generate test data first');
+                return;
+            }
+            
+            console.log('=== TESTING SCANNER DECRYPTION LOGIC ===');
+            
+            const resultDiv = document.getElementById('scannerResult');
+            let results = [];
+            
+            try {
+                // Copy the exact logic from rifle_scanner.js onScanSuccess function
+                let qrData = null;
+                let decryptionMethod = 'unknown';
+                
+                // Tier 1: Try attendance system key
+                try {
+                    console.log('Tier 1: Testing attendance key...');
+                    const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, 'attendance-system-permanent-key-2023');
+                    const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                    if (decryptedText) {
+                        qrData = JSON.parse(decryptedText);
+                        if (qrData.student_id) {
+                            qrData.cadet_id = qrData.student_id;
+                        }
+                        qrData.type = 'cadet';
+                        decryptionMethod = 'attendance-key';
+                        results.push('❌ Tier 1 (Attendance Key): Should fail for rifle QR');
+                    }
+                } catch (e) {
+                    results.push('✅ Tier 1 (Attendance Key): Correctly failed');
+                }
+                
+                // Tier 2: Try rifle management key
+                if (!qrData) {
+                    try {
+                        console.log('Tier 2: Testing rifle key...');
+                        const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, 'rifle-management-system-key-2024');
+                        const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                        if (decryptedText) {
+                            qrData = JSON.parse(decryptedText);
+                            // Map serial to rifle_id if needed
+                            if (qrData.serial && !qrData.rifle_id) {
+                                qrData.rifle_id = qrData.serial;
+                            }
+                            qrData.type = 'rifle';
+                            decryptionMethod = 'rifle-key';
+                            results.push('✅ Tier 2 (Rifle Key): Successfully decrypted');
+                        }
+                    } catch (e) {
+                        results.push('❌ Tier 2 (Rifle Key): Failed - ' + e.message);
+                    }
+                }
+                
+                if (qrData) {
+                    console.log('Decrypted QR data:', qrData);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <h3>✅ Scanner Logic Test Results</h3>
+                            <p><strong>Decryption Method:</strong> ${decryptionMethod}</p>
+                            <p><strong>Type:</strong> ${qrData.type}</p>
+                            <p><strong>Serial:</strong> ${qrData.serial}</p>
+                            <p><strong>Rifle ID:</strong> ${qrData.rifle_id}</p>
+                            <p><strong>Model:</strong> ${qrData.model}</p>
+                            <div class="code-block">
+                                <strong>Decrypted Object:</strong><br>
+                                ${JSON.stringify(qrData, null, 2)}
+                            </div>
+                            <div class="test-result">
+                                <strong>Test Results:</strong><br>
+                                ${results.join('<br>')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('All decryption methods failed');
+                }
+                
+            } catch (error) {
+                console.error('Scanner logic test failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <h3>❌ Scanner Logic Test Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <div class="test-result">
+                            <strong>Test Results:</strong><br>
+                            ${results.join('<br>')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function testAssignmentWorkflow() {
+            console.log('=== TESTING ASSIGNMENT WORKFLOW ===');
+            
+            const resultDiv = document.getElementById('workflowResult');
+            
+            // Simulate the assignment workflow
+            let workflowSteps = [];
+            
+            // Step 1: Scan cadet QR (simulate)
+            const testCadetData = {
+                type: 'cadet',
+                cadet_id: 'CADET123',
+                student_id: 'CADET123',
+                name: 'Test Cadet'
+            };
+            
+            workflowSteps.push('✅ Step 1: Cadet QR scanned successfully');
+            scannedCadet = testCadetData;
+            currentStep = 'waiting_for_rifle';
+            
+            // Step 2: Scan rifle QR (use our test data)
+            if (!testEncryptedData) {
+                workflowSteps.push('❌ Step 2: No rifle QR data available');
+            } else {
+                try {
+                    // Decrypt rifle QR
+                    const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, 'rifle-management-system-key-2024');
+                    const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                    const rifleData = JSON.parse(decryptedText);
+                    
+                    if (rifleData.serial && !rifleData.rifle_id) {
+                        rifleData.rifle_id = rifleData.serial;
+                    }
+                    rifleData.type = 'rifle';
+                    
+                    workflowSteps.push('✅ Step 2: Rifle QR decrypted successfully');
+                    workflowSteps.push(`✅ Step 3: Assignment ready - Cadet ${scannedCadet.cadet_id} → Rifle ${rifleData.rifle_id}`);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <h3>✅ Assignment Workflow Test</h3>
+                            <div class="test-result">
+                                <strong>Workflow Steps:</strong><br>
+                                ${workflowSteps.join('<br>')}
+                            </div>
+                            <div class="test-result">
+                                <strong>Assignment Details:</strong><br>
+                                <strong>Cadet:</strong> ${scannedCadet.cadet_id} (${scannedCadet.name})<br>
+                                <strong>Rifle:</strong> ${rifleData.rifle_id} (${rifleData.model})<br>
+                                <strong>Condition:</strong> ${rifleData.condition}
+                            </div>
+                        </div>
+                    `;
+                    
+                } catch (error) {
+                    workflowSteps.push('❌ Step 2: Rifle QR decryption failed - ' + error.message);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="test-result error">
+                            <h3>❌ Assignment Workflow Test Failed</h3>
+                            <div class="test-result">
+                                <strong>Workflow Steps:</strong><br>
+                                ${workflowSteps.join('<br>')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Auto-run all tests on page load
+        window.onload = function() {
+            console.log('Page loaded, running all tests...');
+            setTimeout(() => {
+                generateTestData();
+                setTimeout(() => {
+                    testScannerLogic();
+                    setTimeout(() => {
+                        testAssignmentWorkflow();
+                    }, 500);
+                }, 500);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

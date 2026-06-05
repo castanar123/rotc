@@ -1,0 +1,2109 @@
+/* Modern Login Form - Ultra Sleek Design */
+
+/* CSS Variables for Consistency - Dashboard Theme */
+:root {
+    /* Dashboard Color System */
+    --bg-primary: #0f1419;
+    --bg-secondary: #1a1f2e;
+    --bg-tertiary: #252d3a;
+    --bg-card: #1e2329;
+    --bg-overlay: rgba(15, 20, 25, 0.95);
+    
+    /* Text Colors */
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0a6;
+    --text-muted: #5f6368;
+    --text-accent: #28a745;
+    
+    /* Military Colors */
+    --military-green: #28a745;
+    --tactical-black: #1a1a1a;
+    --border-primary: #3c4043;
+    
+    /* Gradients using dashboard colors */
+    --primary-gradient: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    --secondary-gradient: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    --accent-gradient: linear-gradient(135deg, var(--military-green) 0%, #34a853 100%);
+    
+    /* Glass Effects */
+    --glass-bg: rgba(30, 35, 41, 0.3);
+    --glass-border: rgba(60, 64, 67, 0.4);
+    
+    /* Status Colors */
+    --success-color: var(--military-green);
+    --error-color: #ff4444;
+    --warning-color: #ffa502;
+    
+    /* Shadows */
+    --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.4);
+    --shadow-accent: 0 0 20px rgba(40, 167, 69, 0.3);
+    
+    /* Other Properties */
+    --border-radius: 20px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-primary: 'Orbitron', sans-serif;
+    --font-secondary: 'Rajdhani', sans-serif;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow globally */
+html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: var(--font-secondary);
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    color: var(--text-primary);
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* Animated Background */
+.animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(45deg, var(--bg-primary), var(--bg-secondary), var(--bg-tertiary), var(--military-green));
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Geometric Shapes */
+.geometric-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    animation: float 20s infinite linear;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.shape.animate {
+    opacity: 1;
+}
+
+.shape-1 {
+    width: 80px;
+    height: 80px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 120px;
+    height: 120px;
+    top: 60%;
+    right: 15%;
+    animation-delay: -5s;
+}
+
+.shape-3 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: -10s;
+}
+
+.shape-4 {
+    width: 100px;
+    height: 100px;
+    top: 30%;
+    right: 30%;
+    animation-delay: -15s;
+}
+
+.shape-5 {
+    width: 140px;
+    height: 140px;
+    bottom: 10%;
+    right: 10%;
+    animation-delay: -20s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-30px) rotate(120deg);
+    }
+    66% {
+        transform: translateY(30px) rotate(240deg);
+    }
+}
+
+/* Particle Field */
+.particle-field {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(232, 234, 237, 0.6);
+    border-radius: 50%;
+    animation: particleFloat 25s infinite linear;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.particle.animate {
+    opacity: 1;
+}
+
+.particle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+.particle:nth-child(2) { top: 40%; left: 60%; animation-delay: -5s; }
+.particle:nth-child(3) { top: 70%; left: 30%; animation-delay: -10s; }
+.particle:nth-child(4) { top: 10%; left: 80%; animation-delay: -15s; }
+.particle:nth-child(5) { top: 80%; left: 70%; animation-delay: -20s; }
+.particle:nth-child(6) { top: 50%; left: 10%; animation-delay: -25s; }
+
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px);
+        opacity: 0;
+    }
+    10%, 90% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0.8;
+    }
+}
+
+/* Navigation */
+.modern-nav {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 1000;
+}
+
+.nav-back {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.nav-back:hover {
+    background: rgba(40, 167, 69, 0.2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+    border-color: var(--military-green);
+}
+
+.nav-back i {
+    font-size: 16px;
+}
+
+/* Main Container */
+.login-main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Login Card */
+.login-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: var(--shadow-heavy);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 350px;
+    flex-shrink: 0;
+    transform: translateY(50px);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.login-card.animate-in {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* Header Section */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.logo-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.logo-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+    box-shadow: var(--shadow-light);
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.manrilag-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: brightness(1.1) contrast(1.1);
+}
+
+.logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    opacity: 0.3;
+    filter: blur(20px);
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.login-title {
+    font-family: var(--font-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Alert Styles */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.alert-error {
+    background: rgba(255, 68, 68, 0.1);
+    border-color: rgba(255, 68, 68, 0.3);
+    color: var(--error-color);
+}
+
+.alert-error::before {
+    background: var(--error-color);
+}
+
+.alert-success {
+    background: rgba(40, 167, 69, 0.1);
+    border-color: rgba(40, 167, 69, 0.3);
+    color: var(--success-color);
+}
+
+.alert-success::before {
+    background: var(--success-color);
+}
+
+.alert-icon {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.alert-content h4 {
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.alert-content ul {
+    list-style: none;
+    margin: 0;
+}
+
+.alert-content li {
+    margin-bottom: 4px;
+}
+
+/* Form Styles */
+.login-form {
+    margin-bottom: 30px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-wrapper {
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.input-wrapper.animate-in {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.form-input {
+    width: 100%;
+    padding: 18px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 400;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 2;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: rgba(79, 172, 254, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.form-input::placeholder {
+    color: transparent;
+}
+
+.input-label {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 400;
+    transition: var(--transition);
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.input-wrapper.focused .input-label,
+.form-input:focus + .input-label,
+.form-input:not(:placeholder-shown) + .input-label {
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #4facfe;
+    background: rgba(79, 172, 254, 0.2);
+}
+
+.input-border {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    transition: var(--transition);
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.input-wrapper.focused .input-border,
+.form-input:focus ~ .input-border {
+    width: 100%;
+}
+
+.input-focus-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 15px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 1;
+}
+
+.input-wrapper.active .input-focus-effect {
+    opacity: 0.1;
+}
+
+/* Password Wrapper */
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: var(--transition);
+    z-index: 3;
+}
+
+.password-toggle:hover {
+    color: var(--text-primary);
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.password-toggle.active {
+    color: var(--military-green);
+}
+
+.toggle-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background: rgba(40, 167, 69, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Form Options */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-primary);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+}
+
+.checkbox-custom i {
+    font-size: 12px;
+    color: white;
+    opacity: 0;
+    transform: scale(0);
+    transition: var(--transition);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkbox-custom {
+    background: var(--accent-gradient);
+    border-color: var(--military-green);
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkbox-custom i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.checkbox-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.forgot-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: var(--transition);
+    position: relative;
+}
+
+.forgot-link:hover {
+    color: var(--military-green);
+}
+
+.forgot-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--military-green);
+    transition: var(--transition);
+}
+
+.forgot-link:hover::after {
+    width: 100%;
+}
+
+/* Login Button */
+.login-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: var(--shadow-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.btn-text {
+    transition: var(--transition);
+}
+
+.btn-icon {
+    transition: var(--transition);
+}
+
+.login-btn:hover .btn-icon {
+    transform: translateX(5px);
+}
+
+.btn-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.login-btn.loading .btn-text,
+.login-btn.loading .btn-icon {
+    opacity: 0;
+}
+
+.login-btn.loading .btn-loader {
+    opacity: 1;
+}
+
+.loader-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.btn-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-ripple.active {
+    width: 300px;
+    height: 300px;
+}
+
+/* Register Section */
+.register-section {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.register-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.register-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #4facfe;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: rgba(79, 172, 254, 0.1);
+    border: 1px solid rgba(79, 172, 254, 0.2);
+}
+
+.register-link:hover {
+    background: rgba(79, 172, 254, 0.2);
+    transform: translateY(-2px);
+}
+
+.register-link i {
+    transition: var(--transition);
+}
+
+.register-link:hover i {
+    transform: translateX(3px);
+}
+
+/* Info Panel */
+.info-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    max-width: 350px;
+    flex-shrink: 0;
+}
+
+.info-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 18px;
+    box-shadow: var(--shadow-light);
+}
+
+.info-header {
+    margin-bottom: 20px;
+}
+
+.info-header h3 {
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Access Levels */
+.access-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.access-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+}
+
+.access-item:hover {
+    background: rgba(40, 167, 69, 0.1);
+    transform: translateX(5px);
+}
+
+.access-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.access-content {
+    flex: 1;
+}
+
+.access-content h4 {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.access-content p {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.access-badge {
+    background: rgba(40, 167, 69, 0.2);
+    color: var(--military-green);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+/* Values Grid */
+.values-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.value-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+    text-align: center;
+}
+
+.value-item:hover {
+    background: rgba(40, 167, 69, 0.1);
+    transform: translateY(-3px);
+}
+
+.value-item i {
+    font-size: 20px;
+    color: var(--military-green);
+}
+
+.value-item span {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Animations */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Comprehensive Responsive Design */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .login-container {
+        flex-direction: row;
+        align-items: flex-start;
+        max-width: 1200px;
+        gap: 40px;
+        width: 100%;
+    }
+    
+    .login-card {
+        width: 400px;
+        max-width: 400px;
+        flex-shrink: 0;
+    }
+    
+    .info-panel {
+        width: 350px;
+        max-width: 350px;
+        flex-shrink: 0;
+    }
+}
+
+/* Desktop/Laptop (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .login-container {
+        flex-direction: row;
+        align-items: flex-start;
+        max-width: 900px;
+        gap: 30px;
+        width: 100%;
+    }
+    
+    .login-card {
+        width: 350px;
+        max-width: 350px;
+        flex-shrink: 0;
+    }
+    
+    .info-panel {
+        width: 300px;
+        max-width: 300px;
+        flex-shrink: 0;
+    }
+}
+
+/* Tablet Landscape (768px - 991px) */
+@media (max-width: 991px) {
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        max-width: 500px;
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 450px;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .info-card {
+        width: 100%;
+        margin-bottom: 0;
+    }
+    
+    .access-levels {
+        width: 100%;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+}
+
+/* Tablet Portrait (576px - 767px) */
+@media (max-width: 767px) {
+    .modern-nav {
+        top: 15px;
+        left: 15px;
+    }
+    
+    .nav-back {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .login-main {
+        padding: 15px 10px;
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        max-width: 350px;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        border-radius: 16px;
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+    }
+    
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 350px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-card {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .access-levels {
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .access-item {
+        padding: 12px;
+        width: 100%;
+    }
+}
+
+/* Mobile Large (481px - 575px) */
+@media (max-width: 575px) {
+    .login-main {
+        padding: 10px 8px;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        max-width: 350px;
+        width: calc(100% - 16px);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+    }
+    
+    .logo-icon {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .manrilag-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-glow {
+        width: 95px;
+        height: 95px;
+    }
+    
+    .form-input {
+        padding: 16px 20px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .login-btn {
+        padding: 16px 24px;
+        font-size: 16px;
+        min-height: 48px; /* Better touch target */
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 350px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-card {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .value-item {
+        padding: 12px;
+        width: 100%;
+    }
+    
+    .access-levels {
+        width: 100%;
+    }
+    
+    .access-item {
+        width: 100%;
+    }
+}
+
+/* Mobile Medium (376px - 480px) */
+@media (max-width: 480px) {
+    .modern-nav {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .nav-back {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .login-main {
+        padding: 8px 6px;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        max-width: 350px;
+        width: calc(100% - 12px);
+    }
+    
+    .login-card {
+        padding: 20px 16px;
+        margin: 0;
+    }
+    
+    .login-header {
+        margin-bottom: 30px;
+    }
+    
+    .login-title {
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+    }
+    
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .logo-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .manrilag-logo {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .logo-glow {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .form-section {
+        gap: 20px;
+    }
+    
+    .input-group {
+        margin-bottom: 18px;
+    }
+    
+    .form-input {
+        padding: 14px 18px;
+        font-size: 16px;
+    }
+    
+    .input-label {
+        font-size: 14px;
+    }
+    
+    .login-btn {
+        padding: 14px 20px;
+        font-size: 15px;
+        min-height: 46px;
+    }
+    
+    .info-card {
+        padding: 20px 16px;
+    }
+    
+    .access-item {
+        padding: 10px;
+        gap: 12px;
+    }
+    
+    .access-content h4 {
+        font-size: 13px;
+    }
+    
+    .access-content p {
+        font-size: 11px;
+    }
+    
+    .value-item {
+        padding: 10px;
+        gap: 6px;
+    }
+    
+    .value-item i {
+        font-size: 18px;
+    }
+    
+    .value-item span {
+        font-size: 11px;
+    }
+}
+
+/* iPhone 12 mini and similar (375px) */
+@media (max-width: 375px) {
+    .modern-nav {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .nav-back {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .login-main {
+        padding: 8px 5px;
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        max-width: 100%;
+        width: calc(100% - 10px);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 18px 14px;
+        border-radius: 12px;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+        line-height: 1.2;
+    }
+    
+    .login-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .logo-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .manrilag-logo {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .logo-glow {
+        width: 85px;
+        height: 85px;
+    }
+    
+    .form-section {
+        gap: 18px;
+    }
+    
+    .form-input {
+        padding: 14px 16px;
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .input-label {
+        font-size: 13px;
+    }
+    
+    .login-btn {
+        padding: 14px 18px;
+        font-size: 15px;
+        min-height: 46px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .checkbox-label {
+        font-size: 13px;
+    }
+    
+    .forgot-link {
+        font-size: 13px;
+        padding: 6px 0;
+    }
+    
+    .register-text {
+        font-size: 13px;
+    }
+    
+    .register-link {
+        font-size: 14px;
+        padding: 10px 16px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 100%;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .info-card {
+        width: 100%;
+        padding: 12px 10px;
+    }
+    
+    .info-header h3 {
+        font-size: 1rem;
+    }
+    
+    .access-item {
+        padding: 10px 8px;
+        gap: 10px;
+        min-height: 44px;
+    }
+    
+    .access-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .access-content h4 {
+        font-size: 12px;
+    }
+    
+    .access-content p {
+        font-size: 10px;
+        line-height: 1.3;
+    }
+    
+    .access-badge {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .value-item {
+        padding: 10px 8px;
+        gap: 6px;
+        min-height: 44px;
+    }
+    
+    .value-item i {
+        font-size: 16px;
+    }
+    
+    .value-item span {
+        font-size: 10px;
+        line-height: 1.2;
+    }
+}
+
+/* Extra Small Mobile (320px and below) */
+@media (max-width: 320px) {
+    .login-card {
+        padding: 15px 12px;
+    }
+    
+    .login-title {
+        font-size: 1.3rem;
+    }
+    
+    .form-input {
+        padding: 10px 14px;
+    }
+    
+    .login-btn {
+        padding: 10px 16px;
+        min-height: 42px;
+    }
+    
+    .info-card {
+        padding: 14px 10px;
+    }
+    
+    .access-item,
+    .value-item {
+        padding: 6px;
+    }
+}
+
+/* Mobile Layout Fixes and Element Stacking */
+@media (max-width: 767px) {
+    /* Ensure proper stacking order */
+    .login-card {
+        z-index: 10;
+        position: relative;
+    }
+    
+    .info-panel {
+        z-index: 5;
+        position: relative;
+    }
+    
+    /* Prevent content overflow */
+    .login-container {
+        overflow: visible;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Stack elements vertically on mobile */
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Ensure cards don't exceed viewport */
+    .login-card,
+    .info-card {
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix form elements stacking */
+    .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+    
+    .input-group {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .input-wrapper {
+        width: 100%;
+        position: relative;
+    }
+    
+    .form-input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix button stacking */
+    .login-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix form options stacking */
+    .form-options {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    /* Fix register section */
+    .register-section {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .register-link {
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+}
+
+/* Additional mobile stacking fixes for very small screens */
+@media (max-width: 480px) {
+    /* Ensure no horizontal overflow */
+    * {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix info panel stacking */
+    .info-panel {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .info-card {
+        width: 100%;
+        margin: 0;
+    }
+    
+    /* Fix access levels stacking */
+    .access-levels {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .access-item {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix values grid stacking */
+    .values-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .value-item {
+         width: 100%;
+         box-sizing: border-box;
+     }
+ }
+ 
+ /* Touch Target Optimization for Small Screens */
+ @media (max-width: 480px) {
+     /* Ensure all interactive elements meet 44px minimum touch target */
+     .login-btn,
+     .nav-back,
+     .register-link,
+     .forgot-link,
+     .password-toggle {
+         min-height: 44px;
+         min-width: 44px;
+         touch-action: manipulation;
+     }
+     
+     /* Improve checkbox touch target */
+     .checkbox-container {
+         min-height: 44px;
+         display: flex;
+         align-items: center;
+         padding: 8px 0;
+     }
+     
+     .checkbox-custom {
+         min-width: 20px;
+         min-height: 20px;
+     }
+     
+     /* Improve form input touch targets */
+     .form-input {
+         min-height: 44px;
+         touch-action: manipulation;
+     }
+     
+     /* Improve link touch targets */
+     .forgot-link {
+         padding: 8px 4px;
+         display: inline-block;
+     }
+     
+     /* Improve access item touch targets */
+     .access-item {
+         min-height: 44px;
+         cursor: pointer;
+         touch-action: manipulation;
+     }
+     
+     /* Improve value item touch targets */
+     .value-item {
+         min-height: 44px;
+         cursor: pointer;
+         touch-action: manipulation;
+     }
+ }
+ 
+/* iPhone 12 mini and similar (375px) */
+@media (max-width: 375px) {
+    .login-main {
+        padding: 8px 5px;
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        max-width: 350px;
+        width: calc(100% - 10px);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 350px;
+        padding: 18px 15px;
+        border-radius: 12px;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 350px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-card {
+        width: 100%;
+        padding: 16px 12px;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .access-levels {
+        gap: 10px;
+    }
+    
+    .access-item {
+        min-height: 44px;
+        padding: 10px 8px;
+    }
+    
+    .value-item {
+        min-height: 44px;
+        padding: 10px 8px;
+    }
+}
+
+ /* Extra Small Screen Optimizations (320px) */
+@media (max-width: 320px) {
+    .login-main {
+        padding: 5px 3px;
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        max-width: 320px;
+        width: calc(100% - 6px);
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px 12px;
+        border-radius: 10px;
+    }
+    
+    /* Maintain readability on very small screens */
+    .login-title {
+        font-size: 1.3rem;
+        line-height: 1.2;
+    }
+    
+    .login-subtitle {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
+    
+    .logo-icon {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .manrilag-logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .logo-glow {
+        width: 75px;
+        height: 75px;
+    }
+    
+    /* Ensure minimum font sizes for readability */
+    .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        min-height: 42px;
+        padding: 12px 14px;
+    }
+    
+    .input-label {
+        font-size: 12px;
+    }
+    
+    /* Maintain touch targets even on smallest screens */
+    .login-btn {
+        min-height: 42px;
+        font-size: 14px;
+        padding: 12px 16px;
+        width: 100%;
+    }
+    
+    /* Optimize spacing for very small screens */
+    .login-header {
+        margin-bottom: 18px;
+    }
+    
+    .form-section {
+        gap: 14px;
+    }
+    
+    .input-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .forgot-link {
+        font-size: 12px;
+        padding: 4px 0;
+    }
+    
+    .register-link {
+        font-size: 13px;
+        padding: 8px 14px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .info-panel {
+        width: 100%;
+        max-width: 320px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-card {
+        width: 100%;
+        padding: 14px 10px;
+    }
+    
+    .info-header h3 {
+        font-size: 1rem;
+    }
+    
+    /* Ensure info cards remain usable */
+    .access-item {
+        min-height: 40px;
+        padding: 8px 6px;
+        gap: 8px;
+    }
+    
+    .access-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .access-content h4 {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+    
+    .access-content p {
+        font-size: 9px;
+        line-height: 1.3;
+    }
+    
+    .access-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    
+    .value-item {
+        min-height: 40px;
+        padding: 8px 6px;
+        gap: 4px;
+    }
+    
+    .value-item i {
+        font-size: 16px;
+    }
+    
+    .value-item span {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+}
+  
+  /* Comprehensive Overflow Prevention */
+  @media (max-width: 767px) {
+      /* Prevent any element from causing horizontal overflow */
+      * {
+          max-width: 100%;
+          overflow-x: hidden;
+          box-sizing: border-box;
+      }
+      
+      /* Ensure containers don't exceed viewport */
+      .login-main,
+      .login-container,
+      .login-card,
+      .info-panel,
+      .info-card {
+          max-width: 100vw;
+          overflow-x: hidden;
+          box-sizing: border-box;
+      }
+      
+      /* Prevent form elements from overflowing */
+      .form-section,
+      .input-group,
+      .input-wrapper,
+      .form-input {
+          max-width: 100%;
+          overflow-x: hidden;
+          box-sizing: border-box;
+      }
+      
+      /* Prevent text overflow */
+      .login-title,
+      .login-subtitle,
+      .access-content h4,
+      .access-content p,
+      .value-item span {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
+      }
+      
+      /* Prevent button overflow */
+      .login-btn,
+      .register-link,
+      .nav-back {
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+      
+      /* Fix animated background overflow */
+      .animated-background,
+      .geometric-shapes,
+      .particle-field {
+          max-width: 100vw;
+          overflow: hidden;
+      }
+      
+      /* Ensure shapes don't cause overflow */
+      .shape {
+          max-width: 100px;
+          max-height: 100px;
+      }
+  }
+  
+  /* Additional overflow fixes for very small screens */
+  @media (max-width: 480px) {
+      /* Force all elements to respect viewport width */
+      body {
+          position: relative;
+          overflow-x: hidden !important;
+      }
+      
+      .login-main {
+          padding: 8px 4px;
+          margin: 0;
+          width: 100vw;
+          max-width: 100vw;
+      }
+      
+      .login-container {
+          width: calc(100vw - 8px);
+          max-width: calc(100vw - 8px);
+          margin: 0 auto;
+      }
+      
+      .login-card,
+      .info-card {
+          width: calc(100% - 4px);
+          max-width: calc(100% - 4px);
+          margin: 0 auto;
+      }
+      
+      /* Prevent navigation from causing overflow */
+      .modern-nav {
+          max-width: calc(100vw - 20px);
+      }
+      
+      .nav-back {
+          max-width: 200px;
+      }
+  }
+  
+  /* Emergency overflow prevention for all small screens */
+  @media (max-width: 480px) {
+      /* Prevent any horizontal overflow */
+      html, body {
+          overflow-x: hidden !important;
+          max-width: 100vw !important;
+      }
+      
+      * {
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+      }
+      
+      /* Ensure all containers respect viewport width */
+      .login-main {
+          width: 100vw;
+          max-width: 100vw;
+          overflow-x: hidden;
+      }
+      
+      .login-container {
+          width: calc(100vw - 16px);
+          max-width: calc(100vw - 16px);
+          margin: 0 auto;
+      }
+      
+      .login-card,
+      .info-card {
+          width: 100%;
+          max-width: 100%;
+          margin: 0;
+      }
+      
+      /* Prevent form elements from overflowing */
+      .form-input,
+      .login-btn,
+      .register-link {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+      }
+      
+      /* Ensure text doesn't overflow */
+      .login-title,
+      .login-subtitle,
+      .access-content h4,
+      .access-content p,
+      .value-item span {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
+      }
+      
+      /* Prevent background elements from causing overflow */
+      .animated-background,
+      .geometric-shapes,
+      .particle-field {
+          width: 100vw;
+          max-width: 100vw;
+          overflow: hidden;
+      }
+      
+      .shape {
+          max-width: 60px;
+          max-height: 60px;
+      }
+  }
+
+/* High Performance Optimizations */
+.login-card,
+.info-card,
+.input-wrapper,
+.login-btn {
+    will-change: transform;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .animated-background {
+        animation: none;
+    }
+    
+    .shape,
+    .particle {
+        animation: none;
+    }
+}
+

@@ -1,0 +1,466 @@
+/* Mobile Responsive CSS for ROTC QR System */
+/* Universal mobile styles for all pages */
+
+/* Mobile Overlay */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Fixed Sidebar Toggle Button - Enhanced for Mobile */
+.sidebar-toggle-fixed {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: var(--bg-secondary, #1a1a1a);
+    border: 2px solid var(--border-primary, #333);
+    color: var(--text-accent, #fff);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+.sidebar-toggle-fixed:hover {
+    background: var(--military-green, #28a745);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Desktop Sidebar Collapse Styles */
+@media (min-width: 769px) {
+    /* Default expanded state for desktop */
+    .sidebar {
+        width: 280px !important;
+        transition: width 0.3s ease;
+    }
+    
+    .sidebar .sidebar-header .logo-text,
+    .sidebar .nav-link span {
+        display: block;
+    }
+    
+    .sidebar .nav-link {
+        justify-content: flex-start;
+        padding: 15px 20px;
+    }
+    
+    .sidebar + .main-content,
+    .sidebar ~ .main-content,
+    .sidebar + .dashboard-container .main-content {
+        margin-left: 280px !important;
+    }
+    
+    /* Collapsed state for desktop */
+    .sidebar.collapsed {
+        width: 70px !important;
+        transition: width 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-header .logo-text,
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+    
+    .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 15px 0;
+    }
+    
+    .sidebar.collapsed + .main-content,
+    .sidebar.collapsed ~ .main-content,
+    .sidebar.collapsed + .dashboard-container .main-content {
+        margin-left: 70px !important;
+    }
+}
+
+/* Mobile Responsive Breakpoints */
+@media (max-width: 768px) {
+    /* Show mobile toggle button */
+    .sidebar-toggle-fixed {
+        display: block;
+    }
+    
+    /* Hide desktop sidebar toggle */
+    .sidebar .sidebar-toggle {
+        display: none;
+    }
+    
+    /* Sidebar Mobile Styles */
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    /* Dashboard Grid Responsive - removed conflicting rule */
+}
+
+/* Desktop QR Grid Layout */
+@media (min-width: 1025px) {
+    .qr-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 1.5rem !important;
+    }
+}
+
+/* Remove desktop grid overrides - let original CSS handle it */
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    /* Main Content Mobile Adjustments */
+    .main-content,
+    .qr-attendance-container,
+    .content,
+    .dashboard-container .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 15px !important;
+        padding-top: 70px !important; /* Space for toggle button */
+    }
+    
+    /* Header Mobile Adjustments */
+    .header,
+    .qr-header {
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .header-left,
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .page-title,
+    .qr-header h1 {
+        font-size: 1.5rem !important;
+        margin: 0 !important;
+    }
+    
+    /* Mobile stats grid - let new design handle layout */
+    
+    .qr-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    .content-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    /* Cards Mobile */
+    .stat-card,
+    .qr-card,
+    .card {
+        padding: 15px !important;
+        margin-bottom: 15px;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem !important;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem !important;
+    }
+    
+    /* Buttons Mobile */
+    .btn,
+    .qr-btn,
+    .card-btn {
+        width: 100%;
+        padding: 12px 20px !important;
+        font-size: 0.9rem !important;
+        margin: 5px 0 !important;
+    }
+    
+    /* Tables Mobile */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        min-width: 600px;
+        font-size: 0.85rem;
+    }
+    
+    th, td {
+        padding: 8px 4px !important;
+        white-space: nowrap;
+    }
+    
+    /* Forms Mobile */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-control,
+    input,
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 6px;
+    }
+    
+    label {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        display: block;
+    }
+    
+    /* QR Scanner Mobile */
+    #reader {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 10px 0 !important;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    #reader video {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover;
+    }
+    
+    .scanner-section {
+        padding: 10px;
+    }
+    
+    .scanner-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .scanner-title {
+        font-size: 1.3rem !important;
+    }
+    
+    /* Charts Mobile */
+    .chart-container {
+        position: relative;
+        height: 250px !important;
+        margin: 15px 0;
+    }
+    
+    /* Navigation Mobile */
+    .nav-menu {
+        padding: 0;
+    }
+    
+    .nav-link {
+        padding: 15px 20px !important;
+        font-size: 0.9rem;
+    }
+    
+    .nav-link i {
+        width: 20px;
+        margin-right: 10px;
+    }
+    
+    /* Back Button Mobile */
+    .back-btn {
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        padding: 10px !important;
+        font-size: 0.9rem !important;
+        z-index: 1001;
+    }
+    
+    /* User Menu Mobile */
+    .user-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .user-info {
+        text-align: left;
+    }
+    
+    .user-name {
+        font-size: 0.9rem;
+    }
+    
+    .user-role {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens */
+    .main-content,
+    .qr-attendance-container,
+    .content {
+        padding: 10px !important;
+        padding-top: 60px !important;
+    }
+    
+    .sidebar-toggle-fixed {
+        padding: 10px;
+        font-size: 1rem;
+    }
+    
+    .page-title,
+    .qr-header h1 {
+        font-size: 1.2rem !important;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem !important;
+    }
+    
+    .qr-card h2,
+    .card h2 {
+        font-size: 1.1rem !important;
+    }
+    
+    .qr-card p,
+    .card p {
+        font-size: 0.85rem !important;
+    }
+    
+    .btn,
+    .qr-btn,
+    .card-btn {
+        padding: 10px 15px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    table {
+        font-size: 0.75rem;
+    }
+    
+    th, td {
+        padding: 6px 3px !important;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .main-content,
+    .qr-attendance-container,
+    .content {
+        padding-top: 50px !important;
+    }
+    
+    .sidebar-toggle-fixed {
+        top: 10px;
+        left: 10px;
+        padding: 8px;
+    }
+    
+    .back-btn {
+        top: 10px !important;
+        right: 10px !important;
+        padding: 8px !important;
+    }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .main-content,
+    .qr-attendance-container {
+        margin-left: 240px;
+        padding: 20px;
+    }
+    
+    .sidebar.collapsed {
+        width: 60px;
+    }
+    
+    .sidebar.collapsed + .main-content,
+    .sidebar.collapsed ~ .qr-attendance-container {
+        margin-left: 60px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .qr-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Utility Classes */
+.mobile-hidden {
+    display: none !important;
+}
+
+@media (min-width: 769px) {
+    .mobile-hidden {
+        display: block !important;
+    }
+    
+    .desktop-hidden {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .desktop-hidden {
+        display: block !important;
+    }
+}
+
+/* Smooth Transitions */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar,
+.main-content,
+.qr-attendance-container,
+.mobile-overlay {
+    transition: all 0.3s ease;
+}
+
+/* Prevent body scroll when sidebar is open on mobile */
+body.sidebar-open {
+    overflow: hidden;
+}
+
+} /* End mobile media query */
+
+@media (min-width: 769px) {
+    body.sidebar-open {
+        overflow: auto;
+    }
+}

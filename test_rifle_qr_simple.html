@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Rifle QR Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- QRCode library removed - focusing on encryption/decryption testing -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .data-display {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Rifle QR Test</h1>
+    
+    <div class="test-section">
+        <h2>Generate Test Rifle QR</h2>
+        <button onclick="generateTestRifleQR()">Generate Rifle QR</button>
+        
+        <div id="qr-container" class="qr-container"></div>
+        
+        <div id="data-display">
+            <h3>Generated Data:</h3>
+            <div id="raw-data" class="data-display"></div>
+            <div id="encrypted-data" class="data-display"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Scanner Logic</h2>
+        <button onclick="testScannerLogic()">Test Scanner Decryption</button>
+        <div id="scanner-results" class="data-display"></div>
+    </div>
+
+    <script>
+        // Use the exact same encryption key as rifle_generator.html
+        const ENCRYPTION_KEY = 'rifle-management-system-key-2024';
+        let generatedEncryptedData = '';
+        
+        function generateTestRifleQR() {
+            // Create test rifle data with the exact same structure as rifle_generator.html
+            const rifleData = {
+                type: 'rifle',
+                serial: 'TEST123',
+                model: 'M16A2',
+                condition: 'Good',
+                assignedTo: '',
+                generatedAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString(), // 30 days
+                id: 'rifle_' + Date.now()
+            };
+            
+            console.log('Raw rifle data:', rifleData);
+            document.getElementById('raw-data').innerHTML = '<strong>Raw Data:</strong><br>' + JSON.stringify(rifleData, null, 2);
+            
+            // Encrypt using the exact same method as rifle_generator.html
+            const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(rifleData), ENCRYPTION_KEY).toString();
+            generatedEncryptedData = encryptedData;
+            
+            console.log('Encrypted data:', encryptedData);
+            document.getElementById('encrypted-data').innerHTML = '<strong>Encrypted Data:</strong><br>' + encryptedData;
+            
+            // QR code generation removed - focusing on encryption/decryption testing
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = '<p style="color: green;">✅ Rifle QR data generated successfully!</p><p>Use the "Test Scanner Decryption" button below to verify the scanner logic.</p>';
+        }
+        
+        function testScannerLogic() {
+            if (!generatedEncryptedData) {
+                document.getElementById('scanner-results').innerHTML = '<strong style="color: red;">Please generate a QR code first!</strong>';
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('scanner-results');
+            let results = '<strong>Scanner Test Results:</strong><br><br>';
+            
+            // Test 1: Base64 decoding (like batch-generated QRs)
+            try {
+                const decoded = atob(generatedEncryptedData);
+                if (decoded.startsWith('attendance-system-permanent-key-2023|')) {
+                    results += '✅ Base64 decoding: Detected batch-generated QR<br>';
+                    const jsonData = decoded.substring('attendance-system-permanent-key-2023|'.length);
+                    const qrData = JSON.parse(jsonData);
+                    results += '✅ Base64 data: ' + JSON.stringify(qrData) + '<br><br>';
+                } else {
+                    results += '❌ Base64 decoding: Not a batch-generated QR<br><br>';
+                }
+            } catch (e) {
+                results += '❌ Base64 decoding failed: ' + e.message + '<br><br>';
+            }
+            
+            // Test 2: CryptoJS decryption with attendance key
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(generatedEncryptedData, 'attendance-system-permanent-key-2023');
+                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    const qrData = JSON.parse(decryptedText);
+                    results += '✅ Attendance key decryption: SUCCESS<br>';
+                    results += '✅ Attendance key data: ' + JSON.stringify(qrData) + '<br><br>';
+                } else {
+                    results += '❌ Attendance key decryption: Empty result<br><br>';
+                }
+            } catch (e) {
+                results += '❌ Attendance key decryption failed: ' + e.message + '<br><br>';
+            }
+            
+            // Test 3: CryptoJS decryption with rifle key
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(generatedEncryptedData, 'rifle-management-system-key-2024');
+                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    const qrData = JSON.parse(decryptedText);
+                    results += '✅ Rifle key decryption: SUCCESS<br>';
+                    results += '✅ Rifle key data: ' + JSON.stringify(qrData) + '<br>';
+                    
+                    // Test field mapping
+                    if (qrData.serial && !qrData.rifle_id) {
+                        qrData.rifle_id = qrData.serial;
+                        results += '✅ Field mapping: serial → rifle_id = ' + qrData.rifle_id + '<br>';
+                    }
+                    
+                    if (!qrData.type) {
+                        qrData.type = 'rifle';
+                        results += '✅ Type inference: set to rifle<br>';
+                    }
+                    
+                    results += '✅ Final processed data: ' + JSON.stringify(qrData) + '<br>';
+                } else {
+                    results += '❌ Rifle key decryption: Empty result<br>';
+                }
+            } catch (e) {
+                results += '❌ Rifle key decryption failed: ' + e.message + '<br>';
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+        
+        // Auto-generate QR on page load
+        window.onload = function() {
+            generateTestRifleQR();
+        };
+    </script>
+</body>
+</html>

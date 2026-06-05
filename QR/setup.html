@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Setup - QR Attendance</title>
+    <link rel="stylesheet" href="../css/tactical-theme.css">
+    <link rel="stylesheet" href="../css/dashboard-redesigned.css">
+    <link rel="stylesheet" href="../css/mobile-responsive.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .setup-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .status-success {
+            background-color: #28a745;
+        }
+        
+        .status-error {
+            background-color: #dc3545;
+        }
+        
+        .status-warning {
+            background-color: #28a745;
+            color: #fff;
+        }
+        
+        .status-info {
+            background-color: #17a2b8;
+        }
+        
+        .setup-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .setup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .setup-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .network-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .url-box {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step-item:last-child {
+            border-bottom: none;
+        }
+        
+        .copy-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        
+        .copy-button:hover {
+            background: #218838;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert-warning {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle-fixed" id="sidebarToggle">
+         <i class="fas fa-bars"></i>
+     </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="logo-text">Admin Command</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../admin_dashboard.php" class="nav-link active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/home.html" class="nav-link">
+                            <i class="fas fa-qrcode"></i>
+                            <span>QR Attendance</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="../QR/dashboard.html" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Attendance Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/setup.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>System Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/https_test.html" class="nav-link">
+                            <i class="fas fa-lock"></i>
+                            <span>HTTPS Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../user_management.php" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="registration_approvals.php" class="nav-link">
+                            <i class="fas fa-user-check"></i>
+                            <span>Registration Approvals</span>
+                            <?php if ($pending_registrations > 0): ?>
+                                <span class="badge"><?php echo $pending_registrations; ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports/view_report.php" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../announcements/view.php" class="nav-link">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../grades/manage_grades.php" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Grades</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../settings.php" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../logout.php" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-body">
+                <div class="qr-attendance-container">
+                    <div class="qr-header">
+                        <button class="back-btn" onclick="window.location.href='../admin/dashboard.html'">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Admin
+                        </button>
+                        <h1 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin: 0; font-size: 2rem;"><i class="fas fa-cog"></i> System Setup</h1>
+                        <div></div>
+                    </div>
+                    <div class="qr-card fade-in">
+                        <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.5rem; text-align: center;"><i class="fas fa-info-circle"></i> Current Status</h2>
+                        <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--spacing-lg);">Automatic HTTPS and network configuration for mobile device access</p>
+                        <div style="background: rgba(40, 167, 69, 0.1); border: 1px solid var(--military-green); border-radius: var(--radius-md); padding: var(--spacing-lg);">
+                            <div class="status-indicator">
+                                <div class="status-icon status-info" id="https-status-icon">
+                                    <i class="fas fa-question"></i>
+                                </div>
+                                <span id="https-status-text">Checking HTTPS status...</span>
+                            </div>
+            
+                             <div class="status-indicator">
+                                 <div class="status-icon status-info" id="network-status-icon">
+                                     <i class="fas fa-question"></i>
+                                 </div>
+                                 <span id="network-status-text">Detecting network configuration...</span>
+                             </div>
+                             
+                             <div class="status-indicator">
+                                 <div class="status-icon status-info" id="mobile-status-icon">
+                                     <i class="fas fa-question"></i>
+                                 </div>
+                                 <span id="mobile-status-text">Checking mobile access...</span>
+                             </div>
+                         </div>
+                     </div>
+                     
+                     <div class="qr-card fade-in">
+                         <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.5rem; text-align: center;"><i class="fas fa-play-circle"></i> Setup Actions</h2>
+                         
+                         <div style="display: grid; gap: var(--spacing-md);">
+                             <button class="qr-btn" id="auto-setup-btn" onclick="runAutoSetup()" style="background: var(--military-green); color: var(--text-primary); border: none; padding: var(--spacing-md); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+                                 <i class="fas fa-magic"></i> Run Automatic Setup
+                             </button>
+                             
+                             <button class="qr-btn" id="test-https-btn" onclick="testHttps()" style="background: var(--military-green); color: var(--text-primary); border: none; padding: var(--spacing-md); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+                                 <i class="fas fa-shield-alt"></i> Test HTTPS Access
+                             </button>
+                             
+                             <button class="qr-btn" id="generate-qr-btn" onclick="generateNetworkQR()" style="background: var(--military-green); color: var(--text-primary); border: none; padding: var(--spacing-md); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+                                 <i class="fas fa-qrcode"></i> Generate Network Access QR
+                             </button>
+                             
+                             <div class="progress-bar" id="setup-progress" style="display: none; background: rgba(15, 20, 25, 0.5); border-radius: 10px; height: 10px; margin: var(--spacing-md) 0; overflow: hidden;">
+                                 <div id="progress-fill" style="height: 100%; background: var(--military-green); width: 0%; transition: width 0.3s ease;"></div>
+                             </div>
+                         </div>
+                     </div>
+        
+                     <div class="qr-card fade-in" id="network-info-card" style="display: none;">
+                         <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.5rem; text-align: center;"><i class="fas fa-network-wired"></i> Network Information</h2>
+                         
+                         <div style="display: grid; gap: var(--spacing-md);">
+                             <div>
+                                 <strong style="color: var(--text-accent);">Local IP Address:</strong>
+                                 <div style="background: rgba(15, 20, 25, 0.5); border: 1px solid var(--military-green); border-radius: var(--radius-sm); padding: var(--spacing-sm); margin-top: var(--spacing-xs); color: var(--military-green); font-family: monospace;" id="local-ip">Detecting...</div>
+                             </div>
+                             
+                             <div>
+                                 <strong style="color: var(--text-accent);">Mobile Access URLs:</strong>
+                                 <div style="background: rgba(15, 20, 25, 0.5); border: 1px solid var(--military-green); border-radius: var(--radius-sm); padding: var(--spacing-sm); margin-top: var(--spacing-xs); color: var(--military-green); font-family: monospace;" id="mobile-http-url">Generating...</div>
+                                 <div style="background: rgba(15, 20, 25, 0.5); border: 1px solid var(--military-green); border-radius: var(--radius-sm); padding: var(--spacing-sm); margin-top: var(--spacing-xs); color: var(--military-green); font-family: monospace;" id="mobile-https-url">Generating...</div>
+                             </div>
+                             
+                             <button class="qr-btn" onclick="copyToClipboard('mobile-https-url')" style="background: var(--military-green); color: var(--text-primary); border: none; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Copy HTTPS URL</button>
+                         </div>
+                         
+                         <div id="qr-code-container" style="text-align: center; margin-top: var(--spacing-lg);">
+                             <!-- QR code will be generated here -->
+                         </div>
+                     </div>
+                     
+                     <div class="qr-card fade-in" id="setup-log-card" style="display: none;">
+                         <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.5rem; text-align: center;"><i class="fas fa-list"></i> Setup Progress</h2>
+                         <ul id="setup-steps" style="list-style: none; padding: 0; color: var(--text-secondary);"></ul>
+                     </div>
+                     
+                     <div class="qr-card fade-in">
+                         <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.5rem; text-align: center;"><i class="fas fa-mobile-alt"></i> Mobile Device Instructions</h2>
+                         
+                         <div style="background: rgba(40, 167, 69, 0.1); border: 1px solid var(--military-green); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-md);">
+                             <strong style="color: var(--text-accent);">For Mobile Access:</strong>
+                             <ol style="color: var(--text-secondary); margin-top: var(--spacing-sm);">
+                                 <li>Ensure your mobile device is connected to the same WiFi network</li>
+                                 <li>Run the automatic setup above</li>
+                                 <li>Use the generated HTTPS URL or scan the QR code</li>
+                                 <li>Accept the security certificate warning (for self-signed certificates)</li>
+                                 <li>Grant camera permissions when prompted</li>
+                             </ol>
+                         </div>
+                         
+                         <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: var(--radius-md); padding: var(--spacing-lg);">
+                             <strong style="color: #ffc107;">Note:</strong> <span style="color: var(--text-secondary);">If you move this system to another computer or network, you'll need to run the setup again to generate new certificates and URLs.</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </main>
+     </div>
+     
+     <!-- Include QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        let setupInProgress = false;
+        let networkInfo = null;
+        
+        // Check initial status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkCurrentStatus();
+        });
+        
+        /**
+         * Check current system status
+         */
+        function checkCurrentStatus() {
+            // Check HTTPS
+            const isHttps = window.location.protocol === 'https:';
+            updateStatusIndicator('https', isHttps, isHttps ? 'HTTPS is enabled' : 'HTTPS is not enabled');
+            
+            // Check if we can access camera (basic test)
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                updateStatusIndicator('mobile', true, 'Camera API is available');
+            } else {
+                updateStatusIndicator('mobile', false, 'Camera API not available (HTTPS required)');
+            }
+            
+            // Get network info
+            fetch('get_ip.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ip) {
+                        updateStatusIndicator('network', true, `Network detected: ${data.ip}`);
+                        document.getElementById('local-ip').textContent = data.ip;
+                    } else {
+                        updateStatusIndicator('network', false, 'Network detection failed');
+                    }
+                })
+                .catch(error => {
+                    updateStatusIndicator('network', false, 'Network check failed');
+                });
+        }
+        
+        /**
+         * Update status indicator
+         */
+        function updateStatusIndicator(type, success, message) {
+            const icon = document.getElementById(`${type}-status-icon`);
+            const text = document.getElementById(`${type}-status-text`);
+            
+            icon.className = `status-icon ${success ? 'status-success' : 'status-error'}`;
+            icon.innerHTML = `<i class="fas ${success ? 'fa-check' : 'fa-times'}"></i>`;
+            text.textContent = message;
+        }
+        
+        /**
+         * Run automatic setup
+         */
+        function runAutoSetup() {
+            if (setupInProgress) return;
+            
+            setupInProgress = true;
+            document.getElementById('auto-setup-btn').disabled = true;
+            document.getElementById('setup-progress').style.display = 'block';
+            document.getElementById('setup-log-card').style.display = 'block';
+            
+            updateProgress(10);
+            addSetupStep('Starting automatic setup...');
+            
+            fetch('auto_setup.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateProgress(50);
+                
+                if (data.success) {
+                    // Process setup steps
+                    data.steps.forEach(step => addSetupStep(step, true));
+                    
+                    // Update network information
+                    if (data.network_info) {
+                        networkInfo = data.network_info;
+                        updateNetworkInfo(data.network_info, data.mobile_access_url);
+                    }
+                    
+                    updateProgress(100);
+                    addSetupStep('Setup completed successfully!', true);
+                    
+                    // Update status indicators
+                    updateStatusIndicator('https', data.https_status, 
+                        data.https_status ? 'HTTPS is now enabled' : 'HTTPS setup pending');
+                    
+                    if (data.https_status) {
+                        setTimeout(() => {
+                            if (confirm('HTTPS has been configured. Would you like to reload the page with HTTPS?')) {
+                                window.location.href = window.location.href.replace('http:', 'https:');
+                            }
+                        }, 2000);
+                    }
+                    
+                } else {
+                    data.errors.forEach(error => addSetupStep(error, false));
+                    addSetupStep('Setup completed with errors', false);
+                }
+            })
+            .catch(error => {
+                addSetupStep('Setup failed: ' + error.message, false);
+            })
+            .finally(() => {
+                setupInProgress = false;
+                document.getElementById('auto-setup-btn').disabled = false;
+                updateProgress(100);
+            });
+        }
+        
+        /**
+         * Test HTTPS access
+         */
+        function testHttps() {
+            const httpsUrl = window.location.href.replace('http:', 'https:');
+            window.open(httpsUrl, '_blank');
+        }
+        
+        /**
+         * Generate network access QR code
+         */
+        function generateNetworkQR() {
+            if (!networkInfo) {
+                alert('Please run the automatic setup first to get network information.');
+                return;
+            }
+            
+            const qrContainer = document.getElementById('qr-code-container');
+            qrContainer.innerHTML = '<h3>Scan to Access on Mobile Device</h3>';
+            
+            const qrDiv = document.createElement('div');
+            qrDiv.id = 'network-qr';
+            qrContainer.appendChild(qrDiv);
+            
+            // Generate QR code with HTTPS URL
+            const httpsUrl = `https://${networkInfo.local_ip}/generate%20qr/scanner.html`;
+            
+            new QRCode(qrDiv, {
+                text: httpsUrl,
+                width: 256,
+                height: 256,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('network-info-card').style.display = 'block';
+        }
+        
+        /**
+         * Update network information display
+         */
+        function updateNetworkInfo(networkInfo, mobileUrls) {
+            document.getElementById('local-ip').textContent = networkInfo.local_ip;
+            
+            if (mobileUrls) {
+                document.getElementById('mobile-http-url').textContent = mobileUrls.http;
+                document.getElementById('mobile-https-url').textContent = mobileUrls.https;
+            }
+            
+            document.getElementById('network-info-card').style.display = 'block';
+        }
+        
+        /**
+         * Update progress bar
+         */
+        function updateProgress(percentage) {
+            document.getElementById('progress-fill').style.width = percentage + '%';
+        }
+        
+        /**
+         * Add setup step to log
+         */
+        function addSetupStep(message, success = null) {
+            const stepsList = document.getElementById('setup-steps');
+            const stepItem = document.createElement('li');
+            stepItem.className = 'step-item';
+            
+            let iconClass = 'fa-info-circle';
+            let iconColor = '#17a2b8';
+            
+            if (success === true) {
+                iconClass = 'fa-check-circle';
+                iconColor = '#28a745';
+            } else if (success === false) {
+                iconClass = 'fa-times-circle';
+                iconColor = '#dc3545';
+            }
+            
+            stepItem.innerHTML = `
+                <div class="status-icon" style="background-color: ${iconColor}; margin-right: 10px;">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <span>${message}</span>
+            `;
+            
+            stepsList.appendChild(stepItem);
+            stepItem.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        /**
+         * Copy text to clipboard
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show temporary feedback
+                const originalText = element.textContent;
+                element.textContent = 'Copied!';
+                element.style.background = '#d4edda';
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.style.background = '#e9ecef';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+    </script>
+    
+    <script>
+        // Sidebar toggle functionality
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+    </script>
+    
+    <!-- Include mobile navigation -->
+    <script src="../js/mobile-navigation.js"></script>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

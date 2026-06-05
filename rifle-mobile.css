@@ -1,0 +1,217 @@
+/* Mobile-specific styles for Rifle Scanner Debug Panel */
+/* Enhanced for Cloudflare compatibility and mobile touch interaction */
+
+@media screen and (max-width: 768px) {
+    /* Debug Panel Mobile Styles */
+    #debug-panel {
+        display: block !important;
+        visibility: visible !important;
+        position: relative !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 10px 0 !important;
+        padding: 15px !important;
+        background: #2c3e50 !important;
+        border: 2px solid #4ecdc4 !important;
+        border-radius: 8px !important;
+        color: #ecf0f1 !important;
+        font-size: 12px !important;
+        z-index: 9999 !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+        overflow-y: auto !important;
+        max-height: 400px !important;
+        -webkit-overflow-scrolling: touch !important;
+        /* Enhanced touch scrolling */
+        overscroll-behavior: contain !important;
+        scroll-behavior: smooth !important;
+        /* Prevent zoom on double tap */
+        touch-action: pan-y !important;
+        /* Better text selection on mobile */
+        -webkit-user-select: text !important;
+        user-select: text !important;
+    }
+    
+    #debug-panel h3 {
+        color: #4ecdc4 !important;
+        font-size: 14px !important;
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+        border-bottom: 1px solid #4ecdc4 !important;
+        padding-bottom: 5px !important;
+    }
+    
+    #debug-panel .debug-section {
+        margin-bottom: 15px !important;
+        padding: 10px !important;
+        background: rgba(52, 73, 94, 0.5) !important;
+        border-radius: 4px !important;
+        border-left: 3px solid #4ecdc4 !important;
+    }
+    
+    #debug-panel .debug-section h4 {
+        color: #4ecdc4 !important;
+        font-size: 12px !important;
+        margin: 0 0 8px 0 !important;
+        font-weight: bold !important;
+    }
+    
+    #debug-panel .debug-content {
+        font-size: 11px !important;
+        line-height: 1.4 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    #debug-panel pre {
+        font-size: 10px !important;
+        line-height: 1.3 !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Debug Toggle Button */
+    #toggle-debug {
+        display: block !important;
+        width: 100% !important;
+        padding: 12px !important;
+        margin: 10px 0 !important;
+        background: #4ecdc4 !important;
+        color: #2c3e50 !important;
+        border: 2px solid #4ecdc4 !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        text-align: center !important;
+        min-height: 44px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+        /* Enhanced touch interaction */
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(78, 205, 196, 0.3) !important;
+        transition: all 0.2s ease !important;
+        /* Prevent text selection on button */
+        -webkit-user-select: none !important;
+        user-select: none !important;
+    }
+    
+    #toggle-debug:active {
+        transform: scale(0.95) !important;
+        background: #45b7aa !important;
+    }
+    
+    #toggle-debug:focus {
+        outline: 2px solid #4ecdc4 !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* Scanner container adjustments for debug panel */
+    .scanner-container {
+        padding: 10px !important;
+    }
+    
+    #reader {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Ensure debug panel sections are visible */
+    #debug-raw-data,
+    #debug-workflow,
+    #debug-decryption,
+    #debug-validation,
+    #debug-errors {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* Extra small screens */
+    #debug-panel {
+        font-size: 11px !important;
+        padding: 12px !important;
+        max-height: 300px !important;
+    }
+    
+    #debug-panel h3 {
+        font-size: 13px !important;
+    }
+    
+    #debug-panel .debug-section h4 {
+        font-size: 11px !important;
+    }
+    
+    #debug-panel .debug-content {
+        font-size: 10px !important;
+    }
+    
+    #debug-panel pre {
+        font-size: 9px !important;
+    }
+    
+    #toggle-debug {
+        font-size: 15px !important;
+        padding: 10px !important;
+    }
+}
+
+/* Force visibility for Cloudflare caching issues */
+.debug-force-visible {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Custom scrollbar for debug panel on mobile */
+#debug-panel::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+#debug-panel::-webkit-scrollbar-track {
+    background: rgba(52, 73, 94, 0.3) !important;
+    border-radius: 4px !important;
+}
+
+#debug-panel::-webkit-scrollbar-thumb {
+    background: #4ecdc4 !important;
+    border-radius: 4px !important;
+}
+
+#debug-panel::-webkit-scrollbar-thumb:hover {
+    background: #45b7aa !important;
+}
+
+/* Print styles - hide debug panel when printing */
+@media print {
+    #debug-panel,
+    #toggle-debug {
+        display: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    #debug-panel {
+        border: 3px solid #4ecdc4 !important;
+        background: #1a252f !important;
+    }
+    
+    #toggle-debug {
+        border: 3px solid #4ecdc4 !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    #toggle-debug {
+        transition: none !important;
+    }
+    
+    #debug-panel {
+        scroll-behavior: auto !important;
+    }
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTPS Camera Test - QR Attendance System</title>
+    <link rel="stylesheet" href="../css/tactical-theme.css">
+    <link rel="stylesheet" href="../css/dashboard-redesigned.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <style>
+        .qr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--military-green);
+        }
+        
+        .qr-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--military-green);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .qr-btn {
+            background: var(--military-green);
+            color: var(--text-primary);
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        
+        .qr-btn:hover {
+            background: var(--text-accent);
+            transform: translateY(-2px);
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+        }
+        
+        #camera-test {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            border: 2px solid var(--military-green);
+            margin: var(--spacing-lg) auto;
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #camera-test video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .status {
+            margin: var(--spacing-md) 0;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+        
+        .success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+        
+        .error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        .info {
+            background: rgba(23, 162, 184, 0.2);
+            color: #17a2b8;
+            border: 1px solid #17a2b8;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle-fixed" id="sidebarToggle">
+         <i class="fas fa-bars"></i>
+     </button>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                    <span class="logo-text">Admin Command</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="../admin_dashboard.php" class="nav-link active">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/home.html" class="nav-link">
+                            <i class="fas fa-qrcode"></i>
+                            <span>QR Attendance</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="../QR/dashboard.html" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Attendance Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/setup.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>System Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../QR/https_test.html" class="nav-link">
+                            <i class="fas fa-lock"></i>
+                            <span>HTTPS Setup</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../user_management.php" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            <span>User Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="registration_approvals.php" class="nav-link">
+                            <i class="fas fa-user-check"></i>
+                            <span>Registration Approvals</span>
+                            <?php if ($pending_registrations > 0): ?>
+                                <span class="badge"><?php echo $pending_registrations; ?></span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reports/view_report.php" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../announcements/view.php" class="nav-link">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Announcements</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../grades/manage_grades.php" class="nav-link">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Grades</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../settings.php" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../logout.php" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">HTTPS Camera Test</h1>
+                </div>
+                <div class="header-right">
+                    <button onclick="window.location.href='home.html'" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Admin
+                    </button>
+                </div>
+            </header>
+             
+             <!-- Content Area -->
+             <div class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-video"></i> Camera Access Test</h2>
+                    </div>
+                    <div class="card-body">
+                
+                <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--spacing-lg);">This page tests if your browser can access the camera over your current connection. Camera access requires HTTPS on most mobile browsers.</p>
+                
+                <div id="status" class="status info">Click "Start Camera Test" to begin</div>
+                
+                <div style="display: flex; justify-content: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <button id="start-test" class="qr-btn">
+                        <i class="fas fa-play"></i> Start Camera Test
+                    </button>
+                    <button id="stop-test" class="qr-btn" style="background: #dc3545; display: none;">
+                        <i class="fas fa-stop"></i> Stop Camera Test
+                    </button>
+                </div>
+                
+                <div id="camera-test">
+                    <video id="video-element" autoplay playsinline></video>
+                </div>
+            </div>
+            
+            <div class="qr-card fade-in">
+                <h2 style="font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--text-accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: var(--spacing-lg); font-size: 1.2rem;"><i class="fas fa-exclamation-triangle"></i> Troubleshooting</h2>
+                
+                <div style="color: var(--text-secondary); line-height: 1.6;">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">If Camera Test Fails:</h3>
+                    <ol style="padding-left: var(--spacing-lg);">
+                        <li style="margin-bottom: var(--spacing-sm);">Check if you're using HTTPS (secure connection)</li>
+                        <li style="margin-bottom: var(--spacing-sm);">Make sure you've granted camera permissions to this site</li>
+                        <li style="margin-bottom: var(--spacing-sm);">Try using a different browser</li>
+                        <li style="margin-bottom: var(--spacing-sm);">See <a href="HTTPS_SETUP.md" style="color: var(--military-green); text-decoration: none;">HTTPS Setup Guide</a> for instructions on enabling HTTPS</li>
+                    </ol>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start-test');
+            const stopButton = document.getElementById('stop-test');
+            const statusDiv = document.getElementById('status');
+            const videoElement = document.getElementById('video-element');
+            let stream = null;
+            
+            // Check if we're on HTTPS
+            if (window.location.protocol !== 'https:') {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<strong>Warning:</strong> This page is not being served over HTTPS. ' +
+                    'Camera access may be blocked on some browsers, especially on mobile devices. ' +
+                    'Please see the HTTPS Setup Guide for instructions.';
+            }
+            
+            startButton.addEventListener('click', async () => {
+                try {
+                    statusDiv.className = 'status info';
+                    statusDiv.textContent = 'Requesting camera access...';
+                    
+                    // Request camera access
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        } 
+                    });
+                    
+                    // Connect the stream to the video element
+                    videoElement.srcObject = stream;
+                    
+                    // Update UI
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = 'Camera access successful! Your camera is working properly.';
+                    startButton.style.display = 'none';
+                    stopButton.style.display = 'inline-block';
+                    
+                } catch (error) {
+                    console.error('Error accessing camera:', error);
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `<strong>Error:</strong> ${error.message || 'Could not access camera'}. ` +
+                        'This is likely because your browser requires HTTPS for camera access. ' +
+                        'Please see the HTTPS Setup Guide for instructions.';
+                }
+            });
+            
+            stopButton.addEventListener('click', () => {
+                if (stream) {
+                    // Stop all tracks in the stream
+                    stream.getTracks().forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                    stream = null;
+                    
+                    // Update UI
+                    statusDiv.className = 'status info';
+                    statusDiv.textContent = 'Camera test stopped.';
+                    startButton.style.display = 'inline-block';
+                    stopButton.style.display = 'none';
+                }
+            });
+        });
+                    </div>
+                </div>
+            </div>
+        </main>
+     </div>
+          
+    <script>
+        // Sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+        });
+    </script>
+ </body>
+ </html>

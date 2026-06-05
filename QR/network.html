@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Access Information</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .info-box {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .ip-address {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+            padding: 10px;
+            background-color: #eaf2f8;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .qr-code-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .steps {
+            margin-top: 20px;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 10px;">
+            <a href="home.html" style="color: #3498db; text-decoration: none;">← Back to Home</a>
+        </div>
+        <h1>Network Access Information</h1>
+        
+        <div class="info-box">
+            <h2>Your Local IP Address</h2>
+            <div class="ip-address" id="ip-address">Loading...</div>
+            <p>Use this IP address to access the scanner from mobile devices on the same WiFi network.</p>
+            
+            <div class="qr-code-container" id="qr-container">
+                <!-- QR code will be generated here -->
+            </div>
+            
+            <div class="steps">
+                <h3>How to access from mobile devices:</h3>
+                <ol>
+                    <li>Make sure your mobile device is connected to the same WiFi network as this computer.</li>
+                    <li>Open a web browser on your mobile device.</li>
+                    <li>Enter the following URL in the address bar: <br>
+                        <strong id="mobile-url">http://[IP_ADDRESS]/generate%20qr/scanner.html</strong></li>
+                    <li>Allow camera access when prompted.</li>
+                    <li>Use the scanner as normal.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/qrcode.js@1.0.0/qrcode.min.js"></script>
+    <script>
+        // Function to get the local IP address
+        function getLocalIpAddress() {
+            // For demonstration, we'll use a placeholder
+            // In a real application, you would need server-side code to get the actual IP
+            fetch('get_ip.php')
+                .then(response => response.text())
+                .then(ip => {
+                    if (ip) {
+                        displayIpAddress(ip.trim());
+                    } else {
+                        // Fallback to a default IP (from ipconfig output)
+                        displayIpAddress('192.168.1.7');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching IP:', error);
+                    // Fallback to a default IP (from ipconfig output)
+                    displayIpAddress('192.168.1.7');
+                });
+        }
+        
+        // Function to display the IP address and generate QR code
+        function displayIpAddress(ip) {
+            document.getElementById('ip-address').textContent = ip;
+            
+            const mobileUrl = `http://${ip}/generate%20qr/scanner.html`;
+            document.getElementById('mobile-url').textContent = mobileUrl;
+            
+            // Generate QR code
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: mobileUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // Call the function when the page loads
+        window.onload = getLocalIpAddress;
+    </script>
+</body>
+</html>

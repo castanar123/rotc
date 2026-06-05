@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visibility Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00);
+            background-size: 400% 400%;
+            animation: rainbow 2s ease infinite;
+            min-height: 100vh;
+        }
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .status {
+            font-size: 1.2em;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .button:hover {
+            background: #0056b3;
+        }
+        
+        .blinking {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="blinking">🚨 VISIBILITY TEST 🚨</h1>
+        
+        <div class="status success">
+            ✅ <strong>SUCCESS!</strong> If you can see this page, your browser and server are working correctly!
+        </div>
+        
+        <div class="status info">
+            📍 <strong>Current URL:</strong> <span id="current-url"></span>
+        </div>
+        
+        <div class="status info">
+            🕒 <strong>Page loaded at:</strong> <span id="load-time"></span>
+        </div>
+        
+        <div style="margin: 30px 0;">
+            <a href="register.php" class="button">🔗 Go to Registration Form</a>
+            <a href="index.php" class="button">🏠 Go to Home Page</a>
+        </div>
+        
+        <div style="margin-top: 30px; font-size: 0.9em; color: #666;">
+            <p><strong>If you can see this test page but not the registration form:</strong></p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Try clearing your browser cache (Ctrl+F5 or Cmd+Shift+R)</li>
+                <li>Try opening the registration form in an incognito/private window</li>
+                <li>Check if you have any browser extensions blocking content</li>
+                <li>Make sure you're accessing the correct URL</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('load-time').textContent = new Date().toLocaleString();
+        
+        // Auto-redirect to registration form after 10 seconds
+        setTimeout(() => {
+            if (confirm('Auto-redirect to registration form in 3 seconds. Click OK to proceed or Cancel to stay.')) {
+                window.location.href = 'register.php';
+            }
+        }, 7000);
+    </script>
+</body>
+</html>

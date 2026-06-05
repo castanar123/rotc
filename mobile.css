@@ -1,0 +1,84 @@
+/* Mobile-specific styles for the QR scanner */
+
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-top: 10px;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 10px;
+    }
+    
+    label {
+        font-size: 0.9rem;
+    }
+    
+    input, select {
+        font-size: 1rem;
+        padding: 8px;
+    }
+    
+    button {
+        width: 100%;
+        padding: 12px;
+        margin: 5px 0;
+        font-size: 1rem;
+    }
+    
+    #reader {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px;
+        margin: 10px 0;
+    }
+    
+    #reader video {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: cover;
+    }
+    
+    #scan-result {
+        margin-top: 10px;
+        padding: 10px;
+    }
+    
+    #camera-status {
+        font-size: 0.8rem;
+        margin: 5px 0;
+    }
+    
+    /* Fix for html5-qrcode library on mobile */
+    #reader__scan_region {
+        width: 100% !important;
+    }
+    
+    #reader__dashboard {
+        width: 100% !important;
+    }
+    
+    #reader__dashboard_section_csr button {
+        padding: 8px !important;
+        font-size: 0.9rem !important;
+    }
+}

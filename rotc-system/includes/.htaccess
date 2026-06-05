@@ -1,0 +1,9 @@
+# Allow access to attendance_api.php
+<Files "attendance_api.php">
+    Require all granted
+</Files>
+
+# Deny access to all other PHP files
+<FilesMatch "^(?!attendance_api\.php$).*\.php$">
+    Require all denied
+</FilesMatch>

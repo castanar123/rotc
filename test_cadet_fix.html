@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Cadet Profile Fix</title>
+</head>
+<body>
+    <h1>Testing Cadet Profile Generation</h1>
+    <button onclick="testCadetProfile()">Generate Cadet Profile</button>
+    <div id="result"></div>
+
+    <script>
+    function testCadetProfile() {
+        console.log('Testing cadet profile generation...');
+        
+        fetch('generate_document.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                document_type: 'aer',
+                sub_document: 'cadet_profile'
+            })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            return response.text(); // Get as text first to see raw response
+        })
+        .then(text => {
+            console.log('Raw response:', text);
+            document.getElementById('result').innerHTML = '<pre>' + text + '</pre>';
+            
+            // Try to parse as JSON
+            try {
+                const json = JSON.parse(text);
+                console.log('JSON parsed successfully:', json);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                console.error('Error at character:', e.message);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('result').innerHTML = 'Error: ' + error.message;
+        });
+    }
+    </script>
+</body>
+</html>

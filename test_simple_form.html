@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Form Test</title>
+    <link rel="stylesheet" href="css/registration-form.css">
+    <style>
+        body {
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .form-step {
+            display: block !important; /* Force display */
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Simple Form Test</h1>
+        <p>This test checks if the form fields display without JavaScript interference.</p>
+        
+        <form id="testForm">
+            <!-- Step 1: Account Credentials -->
+            <div class="form-step active" data-step="1">
+                <div class="step-header">
+                    <h2><i class="fas fa-user-shield"></i> Account Credentials</h2>
+                    <p>Create your secure login credentials</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i> Username
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-lock"></i> Confirm Password
+                        </label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <script>
+            console.log('Simple test script loaded');
+            console.log('Form element found:', document.getElementById('testForm'));
+            console.log('Username field found:', document.getElementById('username'));
+            
+            // Check computed styles
+            const formStep = document.querySelector('.form-step');
+            if (formStep) {
+                const styles = window.getComputedStyle(formStep);
+                console.log('Form step display:', styles.display);
+                console.log('Form step visibility:', styles.visibility);
+                console.log('Form step opacity:', styles.opacity);
+            }
+        </script>
+    </div>
+</body>
+</html>

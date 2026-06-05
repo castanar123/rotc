@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple QR Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .test-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Test Data</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Open the test rifle scanner in another tab</li>
+                <li>Start the scanner</li>
+                <li>Point the camera at one of the QR codes below</li>
+                <li>Check if the scanner detects and processes the QR code</li>
+            </ol>
+        </div>
+        
+        <h3>Test QR Codes:</h3>
+        
+        <div class="qr-code">
+            <h4>Simple Text QR Code:</h4>
+            <div id="qr1"></div>
+            <div class="test-data">Data: Hello World Test</div>
+        </div>
+        
+        <div class="qr-code">
+            <h4>JSON Data QR Code:</h4>
+            <div id="qr2"></div>
+            <div class="test-data">Data: {"type":"cadet","id":"12345","name":"Test User","timestamp":"2025-01-28"}</div>
+        </div>
+        
+        <div class="qr-code">
+            <h4>Rifle Data QR Code:</h4>
+            <div id="qr3"></div>
+            <div class="test-data">Data: {"type":"rifle","id":"R001","serial":"ABC123","model":"M16A2"}</div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // Generate QR codes when the library loads
+        window.addEventListener('load', function() {
+            if (typeof QRCode !== 'undefined') {
+                // Simple text
+                QRCode.toCanvas(document.getElementById('qr1'), 'Hello World Test', function (error) {
+                    if (error) console.error(error);
+                });
+                
+                // JSON cadet data
+                const cadetData = JSON.stringify({
+                    type: 'cadet',
+                    id: '12345',
+                    name: 'Test User',
+                    timestamp: '2025-01-28'
+                });
+                QRCode.toCanvas(document.getElementById('qr2'), cadetData, function (error) {
+                    if (error) console.error(error);
+                });
+                
+                // JSON rifle data
+                const rifleData = JSON.stringify({
+                    type: 'rifle',
+                    id: 'R001',
+                    serial: 'ABC123',
+                    model: 'M16A2'
+                });
+                QRCode.toCanvas(document.getElementById('qr3'), rifleData, function (error) {
+                    if (error) console.error(error);
+                });
+            } else {
+                document.body.innerHTML += '<p style="color: red;">QR Code library failed to load. Please check your internet connection.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

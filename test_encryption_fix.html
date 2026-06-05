@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Encryption Key Fix</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Encryption Key Fix Test</h1>
+    
+    <div class="test-section info">
+        <h2>Test Overview</h2>
+        <p>This test verifies that the rifle scanner can now properly decrypt rifle QR codes using the correct encryption key.</p>
+        <p><strong>Issue:</strong> Scanner was using 'rifle-management-system-2024' but QR generation uses 'rifle-management-system-key-2024'</p>
+        <p><strong>Fix:</strong> Updated scanner to use the correct key 'rifle-management-system-key-2024'</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 1: Generate Test Rifle QR Data</h2>
+        <button onclick="generateTestData()">Generate Test Rifle Data</button>
+        <div id="generationResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 2: Test Decryption with Old Key (Should Fail)</h2>
+        <button onclick="testOldKey()">Test Old Key Decryption</button>
+        <div id="oldKeyResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 3: Test Decryption with Correct Key (Should Work)</h2>
+        <button onclick="testCorrectKey()">Test Correct Key Decryption</button>
+        <div id="correctKeyResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Step 4: Test Scanner Logic</h2>
+        <button onclick="testScannerLogic()">Test Scanner Decryption Logic</button>
+        <div id="scannerResult"></div>
+    </div>
+
+    <script>
+        let testEncryptedData = '';
+        let testRifleData = {
+            type: 'rifle',
+            rifle_id: 'TEST001',
+            rifle_number: 'R-001',
+            generated_at: new Date().toISOString(),
+            system: 'rifle-management'
+        };
+
+        function generateTestData() {
+            const correctKey = 'rifle-management-system-key-2024';
+            const jsonData = JSON.stringify(testRifleData);
+            
+            // Encrypt using the correct key (same as QR generation)
+            testEncryptedData = CryptoJS.AES.encrypt(jsonData, correctKey).toString();
+            
+            document.getElementById('generationResult').innerHTML = `
+                <div class="success">
+                    <h4>✓ Test Data Generated</h4>
+                    <p><strong>Original Data:</strong></p>
+                    <pre>${JSON.stringify(testRifleData, null, 2)}</pre>
+                    <p><strong>Encrypted Data:</strong></p>
+                    <pre>${testEncryptedData}</pre>
+                    <p><strong>Encryption Key Used:</strong> ${correctKey}</p>
+                </div>
+            `;
+        }
+
+        function testOldKey() {
+            if (!testEncryptedData) {
+                document.getElementById('oldKeyResult').innerHTML = `
+                    <div class="error">
+                        <p>❌ Please generate test data first!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const oldKey = 'rifle-management-system-2024'; // The incorrect key
+            
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, oldKey);
+                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    const parsedData = JSON.parse(decryptedText);
+                    document.getElementById('oldKeyResult').innerHTML = `
+                        <div class="error">
+                            <h4>❌ Unexpected Success with Old Key</h4>
+                            <p>This should have failed! There might be an issue.</p>
+                            <pre>${JSON.stringify(parsedData, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Decryption returned empty string');
+                }
+            } catch (error) {
+                document.getElementById('oldKeyResult').innerHTML = `
+                    <div class="success">
+                        <h4>✓ Old Key Failed as Expected</h4>
+                        <p>The old key '${oldKey}' correctly failed to decrypt the data.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function testCorrectKey() {
+            if (!testEncryptedData) {
+                document.getElementById('correctKeyResult').innerHTML = `
+                    <div class="error">
+                        <p>❌ Please generate test data first!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const correctKey = 'rifle-management-system-key-2024'; // The correct key
+            
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, correctKey);
+                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    const parsedData = JSON.parse(decryptedText);
+                    document.getElementById('correctKeyResult').innerHTML = `
+                        <div class="success">
+                            <h4>✓ Correct Key Works!</h4>
+                            <p>The correct key '${correctKey}' successfully decrypted the data.</p>
+                            <p><strong>Decrypted Data:</strong></p>
+                            <pre>${JSON.stringify(parsedData, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Decryption returned empty string');
+                }
+            } catch (error) {
+                document.getElementById('correctKeyResult').innerHTML = `
+                    <div class="error">
+                        <h4>❌ Correct Key Failed</h4>
+                        <p>The correct key should have worked! There's an issue.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function testScannerLogic() {
+            if (!testEncryptedData) {
+                document.getElementById('scannerResult').innerHTML = `
+                    <div class="error">
+                        <p>❌ Please generate test data first!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Simulate the exact scanner logic from rifle_scanner.js
+            const RIFLE_ENCRYPTION_KEY = 'rifle-management-system-key-2024'; // Updated key
+            const PERMANENT_ENCRYPTION_KEY = 'attendance-system-permanent-key-2023';
+            
+            let qrData;
+            let decryptionMethod = '';
+            
+            try {
+                // Try rifle key first (as if waiting for rifle)
+                try {
+                    console.log('Testing with rifle key:', RIFLE_ENCRYPTION_KEY);
+                    const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, RIFLE_ENCRYPTION_KEY);
+                    const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                    
+                    if (decryptedText) {
+                        qrData = JSON.parse(decryptedText);
+                        decryptionMethod = 'Rifle Key';
+                        
+                        // Apply scanner logic for field mapping
+                        if (qrData.serial && !qrData.rifle_id) {
+                            qrData.rifle_id = qrData.serial;
+                        }
+                        if (!qrData.type) {
+                            qrData.type = 'rifle';
+                        }
+                    } else {
+                        throw new Error('Rifle key decryption failed');
+                    }
+                } catch (rifleKeyError) {
+                    // Fallback to attendance key
+                    console.log('Rifle key failed, trying attendance key');
+                    const decryptedBytes = CryptoJS.AES.decrypt(testEncryptedData, PERMANENT_ENCRYPTION_KEY);
+                    const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                    
+                    if (decryptedText) {
+                        qrData = JSON.parse(decryptedText);
+                        decryptionMethod = 'Attendance Key (Fallback)';
+                    } else {
+                        throw new Error('Both decryption methods failed');
+                    }
+                }
+                
+                document.getElementById('scannerResult').innerHTML = `
+                    <div class="success">
+                        <h4>✓ Scanner Logic Works!</h4>
+                        <p><strong>Decryption Method:</strong> ${decryptionMethod}</p>
+                        <p><strong>Scanner would process this as:</strong></p>
+                        <pre>${JSON.stringify(qrData, null, 2)}</pre>
+                        <p><strong>QR Type:</strong> ${qrData.type}</p>
+                        <p><strong>Rifle ID:</strong> ${qrData.rifle_id}</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                document.getElementById('scannerResult').innerHTML = `
+                    <div class="error">
+                        <h4>❌ Scanner Logic Failed</h4>
+                        <p>The scanner logic failed to decrypt the QR code.</p>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

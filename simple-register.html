@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Registration Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .test-banner {
+            background: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        
+        .registration-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: visible;
+            padding: 40px;
+        }
+        
+        .registration-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .registration-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 2px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-banner">
+        SIMPLIFIED REGISTRATION FORM TEST - IF YOU CAN SEE THIS, YOUR BROWSER IS WORKING
+    </div>
+    
+    <div class="registration-container">
+        <div class="registration-header">
+            <h1>Registration Form</h1>
+            <p>This is a simplified version to test visibility</p>
+        </div>
+        
+        <div class="debug-info">
+            <strong>Debug Information:</strong><br>
+            Form Container Position: <span id="position"></span><br>
+            Viewport Size: <span id="viewport"></span><br>
+            Scroll Position: <span id="scroll"></span>
+        </div>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="register.php" style="color: #667eea; text-decoration: none; font-weight: bold;">← Back to Original Registration Form</a>
+        </div>
+    </div>
+    
+    <script>
+        function updateDebugInfo() {
+            const container = document.querySelector('.registration-container');
+            const rect = container.getBoundingClientRect();
+            
+            document.getElementById('position').textContent = 
+                `Top: ${rect.top}, Left: ${rect.left}, Width: ${rect.width}, Height: ${rect.height}`;
+            document.getElementById('viewport').textContent = 
+                `${window.innerWidth} x ${window.innerHeight}`;
+            document.getElementById('scroll').textContent = 
+                `X: ${window.scrollX}, Y: ${window.scrollY}`;
+        }
+        
+        // Update debug info on load and scroll
+        window.addEventListener('load', updateDebugInfo);
+        window.addEventListener('scroll', updateDebugInfo);
+        window.addEventListener('resize', updateDebugInfo);
+        
+        // Form submission test
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Form submission test successful! The form is working correctly.');
+        });
+        
+        console.log('Simple registration form loaded successfully');
+        console.log('If you can see this form, the issue is specific to the original registration form');
+    </script>
+</body>
+</html>

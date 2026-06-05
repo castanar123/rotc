@@ -1,0 +1,41 @@
+# FastAPI and web framework dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database dependencies
+PyMySQL==1.1.0
+SQLAlchemy==2.0.23
+alembic==1.12.1
+
+# Document processing dependencies
+python-docx==1.1.0
+Jinja2==3.1.2
+openpyxl==3.1.2
+
+# Security dependencies
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+cryptography==41.0.7
+pyotp==2.9.0
+
+# Utility dependencies
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Logging and monitoring
+loguru==0.7.2
+prometheus-client==0.19.0
+
+# File handling
+aiofiles==23.2.1
+Pillow==10.1

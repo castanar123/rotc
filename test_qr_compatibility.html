@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test QR Code Compatibility</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h1>QR Code Encryption/Decryption Test</h1>
+    <div id="results"></div>
+
+    <script>
+        function log(message) {
+            document.getElementById('results').innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+
+        // Test data similar to what PHP generates
+        const testData = {
+            type: 'rifle',
+            serial: 'TEST123',
+            model: 'Standard',
+            id: 1,
+            timestamp: Math.floor(Date.now() / 1000)
+        };
+
+        const encryptionKey = 'rifle-management-system-key-2024';
+        const jsonData = JSON.stringify(testData);
+
+        log('Testing QR Code Encryption/Decryption Compatibility');
+        log('Original data: ' + jsonData);
+        log('Encryption key: ' + encryptionKey);
+
+        // Test CryptoJS encryption (what the scanner expects)
+        try {
+            const encrypted = CryptoJS.AES.encrypt(jsonData, encryptionKey).toString();
+            log('CryptoJS encrypted: ' + encrypted);
+
+            // Test decryption (what the scanner does)
+            const decrypted = CryptoJS.AES.decrypt(encrypted, encryptionKey);
+            const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+            log('CryptoJS decrypted: ' + decryptedText);
+
+            if (decryptedText === jsonData) {
+                log('✅ CryptoJS encryption/decryption works correctly!');
+            } else {
+                log('❌ CryptoJS encryption/decryption failed!');
+            }
+
+            // Test if we can parse the decrypted JSON
+            try {
+                const parsedData = JSON.parse(decryptedText);
+                log('✅ JSON parsing successful: ' + JSON.stringify(parsedData));
+            } catch (e) {
+                log('❌ JSON parsing failed: ' + e.message);
+            }
+
+        } catch (e) {
+            log('❌ CryptoJS test failed: ' + e.message);
+        }
+
+        // Simulate the rifle scanner's decryption logic
+        function testRifleScannerDecryption(encryptedData) {
+            log('\nTesting rifle scanner decryption logic...');
+            
+            try {
+                // This is what the rifle scanner does
+                const decrypted = CryptoJS.AES.decrypt(encryptedData, 'rifle-management-system-key-2024');
+                const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                if (decryptedText) {
+                    log('✅ Scanner decryption successful: ' + decryptedText);
+                    
+                    try {
+                        const data = JSON.parse(decryptedText);
+                        log('✅ Scanner JSON parsing successful');
+                        log('Data type: ' + data.type);
+                        log('Serial: ' + data.serial);
+                        return data;
+                    } catch (e) {
+                        log('❌ Scanner JSON parsing failed: ' + e.message);
+                        return null;
+                    }
+                } else {
+                    log('❌ Scanner decryption failed - empty result');
+                    return null;
+                }
+            } catch (e) {
+                log('❌ Scanner decryption error: ' + e.message);
+                return null;
+            }
+        }
+
+        // Test with the encrypted data
+        const encrypted = CryptoJS.AES.encrypt(jsonData, encryptionKey).toString();
+        testRifleScannerDecryption(encrypted);
+
+        log('\nTest completed. If all tests pass, the PHP-generated QR codes should work with the rifle scanner.');
+    </script>
+</body>
+</html>

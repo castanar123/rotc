@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZXing Test</title>
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+</head>
+<body>
+    <h1>ZXing Library Test</h1>
+    <div id="status">Loading...</div>
+    <div id="reader" style="width: 300px; height: 300px; border: 1px solid #ccc; margin: 20px 0;"></div>
+    <button id="start-btn" onclick="startTest()">Start Test</button>
+    <button id="stop-btn" onclick="stopTest()" style="display: none;">Stop Test</button>
+    
+    <script>
+        let codeReader;
+        let scanning = false;
+        
+        window.addEventListener('load', function() {
+            const statusDiv = document.getElementById('status');
+            
+            // Check if ZXing is loaded
+            if (typeof ZXing !== 'undefined') {
+                statusDiv.innerHTML = '✅ ZXing library loaded successfully<br>';
+                statusDiv.innerHTML += 'Available: ' + Object.keys(ZXing).join(', ');
+                
+                // Try to create a BrowserQRCodeReader
+                try {
+                    codeReader = new ZXing.BrowserQRCodeReader();
+                    statusDiv.innerHTML += '<br>✅ BrowserQRCodeReader created successfully';
+                } catch (error) {
+                    statusDiv.innerHTML += '<br>❌ Error creating BrowserQRCodeReader: ' + error.message;
+                }
+            } else {
+                statusDiv.innerHTML = '❌ ZXing library not loaded';
+            }
+        });
+        
+        async function startTest() {
+            if (!codeReader) {
+                alert('ZXing not available');
+                return;
+            }
+            
+            try {
+                const videoElement = document.createElement('video');
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                
+                const readerDiv = document.getElementById('reader');
+                readerDiv.innerHTML = '';
+                readerDiv.appendChild(videoElement);
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                
+                videoElement.srcObject = stream;
+                await videoElement.play();
+                
+                document.getElementById('start-btn').style.display = 'none';
+                document.getElementById('stop-btn').style.display = 'block';
+                
+                scanning = true;
+                scanLoop(videoElement);
+                
+                document.getElementById('status').innerHTML += '<br>✅ Camera started, scanning for QR codes...';
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML += '<br>❌ Error starting camera: ' + error.message;
+            }
+        }
+        
+        function scanLoop(videoElement) {
+            if (!scanning) return;
+            
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            
+            context.drawImage(videoElement, 0, 0);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            
+            codeReader.decodeFromImageData(imageData)
+                .then(result => {
+                    if (result && result.text) {
+                        document.getElementById('status').innerHTML += '<br>🎉 QR Code detected: ' + result.text;
+                        scanning = false;
+                        stopTest();
+                    }
+                })
+                .catch(err => {
+                    // Continue scanning
+                });
+            
+            if (scanning) {
+                requestAnimationFrame(() => scanLoop(videoElement));
+            }
+        }
+        
+        function stopTest() {
+            scanning = false;
+            const readerDiv = document.getElementById('reader');
+            const video = readerDiv.querySelector('video');
+            
+            if (video && video.srcObject) {
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            
+            readerDiv.innerHTML = '';
+            document.getElementById('start-btn').style.display = 'block';
+            document.getElementById('stop-btn').style.display = 'none';
+            
+            document.getElementById('status').innerHTML += '<br>⏹️ Scanner stopped';
+        }
+    </script>
+</body>
+</html>

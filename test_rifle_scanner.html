@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rifle Scanner - ZXing Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .scanner-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .debug-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .scan-result {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔫 Rifle Scanner - ZXing Debug Test</h1>
+        <p>This is a simplified test to debug the ZXing QR scanner functionality.</p>
+        
+        <div class="controls">
+            <button id="start-btn" onclick="startScanner()">Start Scanner</button>
+            <button id="stop-btn" onclick="stopScanner()" disabled>Stop Scanner</button>
+        </div>
+        
+        <div id="status" class="status info">Click "Start Scanner" to begin</div>
+        
+        <div class="scanner-container" id="scanner-container" style="display: none;">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div id="scan-result" class="scan-result" style="display: none;">
+            <h3>Last Scan Result:</h3>
+            <div id="result-content"></div>
+        </div>
+        
+        <div class="debug-log" id="debug-log">Debug log will appear here...
+</div>
+    </div>
+
+    <!-- ZXing Library -->
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+    
+    <script>
+        // Global variables
+        let zxingCodeReader = null;
+        let videoElement = null;
+        let canvasElement = null;
+        let canvasContext = null;
+        let scannerActive = false;
+        let scanFrameCount = 0;
+        let frameCount = 0;
+        
+        // Debug logging function
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debug-log');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // Update status display
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            debugLog(`Status: ${message} (${type})`);
+        }
+        
+        // Start scanner function
+        async function startScanner() {
+            try {
+                debugLog('🚀 Starting scanner...');
+                updateStatus('Initializing scanner...', 'info');
+                
+                // Check if ZXing is available
+                if (typeof ZXing === 'undefined') {
+                    throw new Error('ZXing library not loaded');
+                }
+                debugLog('✅ ZXing library is available');
+                
+                // Initialize ZXing code reader
+                if (!zxingCodeReader) {
+                    debugLog('🔧 Initializing ZXing BrowserQRCodeReader...');
+                    zxingCodeReader = new ZXing.BrowserQRCodeReader();
+                    debugLog('✅ ZXing BrowserQRCodeReader initialized');
+                }
+                
+                // Get video and canvas elements
+                videoElement = document.getElementById('video');
+                canvasElement = document.getElementById('canvas');
+                canvasContext = canvasElement.getContext('2d');
+                
+                debugLog('📹 Getting camera access...');
+                updateStatus('Requesting camera access...', 'info');
+                
+                // Request camera access
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                debugLog('✅ Camera access granted');
+                
+                // Set up video stream
+                videoElement.srcObject = stream;
+                debugLog('📹 Video stream assigned to element');
+                
+                await videoElement.play();
+                debugLog('▶️ Video playback started');
+                
+                // Wait for video metadata
+                videoElement.onloadedmetadata = () => {
+                    debugLog(`📐 Video metadata loaded: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                    debugLog('🎨 Canvas size set to match video');
+                };
+                
+                // Show scanner container
+                document.getElementById('scanner-container').style.display = 'block';
+                
+                // Update UI
+                document.getElementById('start-btn').disabled = true;
+                document.getElementById('stop-btn').disabled = false;
+                
+                scannerActive = true;
+                updateStatus('Scanner active - point camera at QR code', 'success');
+                
+                // Start scanning loop
+                debugLog('🔄 Starting continuous scanning...');
+                startContinuousScanning();
+                
+            } catch (error) {
+                debugLog(`❌ Scanner start failed: ${error.message}`);
+                updateStatus(`Failed to start scanner: ${error.message}`, 'error');
+            }
+        }
+        
+        // Stop scanner function
+        function stopScanner() {
+            try {
+                debugLog('🛑 Stopping scanner...');
+                scannerActive = false;
+                
+                // Stop video stream
+                if (videoElement && videoElement.srcObject) {
+                    const tracks = videoElement.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                    debugLog('📹 Video stream stopped');
+                }
+                
+                // Hide scanner container
+                document.getElementById('scanner-container').style.display = 'none';
+                
+                // Update UI
+                document.getElementById('start-btn').disabled = false;
+                document.getElementById('stop-btn').disabled = true;
+                
+                updateStatus('Scanner stopped', 'info');
+                debugLog('✅ Scanner stopped successfully');
+                
+            } catch (error) {
+                debugLog(`❌ Error stopping scanner: ${error.message}`);
+                updateStatus(`Error stopping scanner: ${error.message}`, 'error');
+            }
+        }
+        
+        // Continuous scanning function
+        function startContinuousScanning() {
+            if (!zxingCodeReader || !videoElement || !canvasElement) {
+                debugLog('❌ Scanner components not initialized');
+                return;
+            }
+            
+            debugLog('🔄 Starting continuous scanning loop...');
+            
+            const scanFrame = () => {
+                if (!scannerActive || !videoElement.videoWidth || !videoElement.videoHeight) {
+                    if (scanFrameCount % 50 === 0) {
+                        debugLog(`⏸️ Scanning paused - Active: ${scannerActive}, Video: ${videoElement?.videoWidth}x${videoElement?.videoHeight}`);
+                    }
+                    return;
+                }
+                
+                scanFrameCount++;
+                if (scanFrameCount % 100 === 1) {
+                    debugLog(`🔍 Scanning frame ${scanFrameCount} - Video: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
+                }
+                
+                try {
+                    // Set canvas size to match video
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                    
+                    // Draw video frame to canvas
+                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+                    
+                    // Draw scanning overlay
+                    drawScanningOverlay();
+                    
+                    // Get image data for QR scanning
+                    const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    
+                    // Try to decode QR code
+                    zxingCodeReader.decodeFromImageData(imageData)
+                        .then(result => {
+                            if (result && result.text) {
+                                debugLog(`✅ QR Code detected: ${result.text.substring(0, 50)}...`);
+                                onScanSuccess(result.text, result);
+                            }
+                        })
+                        .catch(err => {
+                            // Only log non-NotFoundException errors
+                            if (err.name !== 'NotFoundException') {
+                                debugLog(`⚠️ ZXing decode error: ${err.name} - ${err.message}`);
+                            }
+                        });
+                        
+                } catch (error) {
+                    debugLog(`❌ Scanning error: ${error.message}`);
+                }
+                
+                // Continue scanning
+                if (scannerActive) {
+                    requestAnimationFrame(scanFrame);
+                }
+            };
+            
+            // Start the scanning loop
+            requestAnimationFrame(scanFrame);
+        }
+        
+        // Draw scanning overlay
+        function drawScanningOverlay() {
+            if (!canvasContext || !canvasElement.width || !canvasElement.height) {
+                return;
+            }
+            
+            const width = canvasElement.width;
+            const height = canvasElement.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const boxSize = Math.min(width, height) * 0.6;
+            const halfBox = boxSize / 2;
+            
+            // Draw semi-transparent overlay
+            canvasContext.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            canvasContext.fillRect(0, 0, width, height);
+            
+            // Clear the scanning area
+            canvasContext.clearRect(centerX - halfBox, centerY - halfBox, boxSize, boxSize);
+            
+            // Draw the scanning box border
+            canvasContext.strokeStyle = '#ffffff';
+            canvasContext.lineWidth = 3;
+            canvasContext.strokeRect(centerX - halfBox, centerY - halfBox, boxSize, boxSize);
+            
+            // Draw corner indicators
+            const cornerLength = 20;
+            canvasContext.strokeStyle = '#00ff00';
+            canvasContext.lineWidth = 4;
+            
+            // Top-left corner
+            canvasContext.beginPath();
+            canvasContext.moveTo(centerX - halfBox, centerY - halfBox + cornerLength);
+            canvasContext.lineTo(centerX - halfBox, centerY - halfBox);
+            canvasContext.lineTo(centerX - halfBox + cornerLength, centerY - halfBox);
+            canvasContext.stroke();
+            
+            // Top-right corner
+            canvasContext.beginPath();
+            canvasContext.moveTo(centerX + halfBox - cornerLength, centerY - halfBox);
+            canvasContext.lineTo(centerX + halfBox, centerY - halfBox);
+            canvasContext.lineTo(centerX + halfBox, centerY - halfBox + cornerLength);
+            canvasContext.stroke();
+            
+            // Bottom-left corner
+            canvasContext.beginPath();
+            canvasContext.moveTo(centerX - halfBox, centerY + halfBox - cornerLength);
+            canvasContext.lineTo(centerX - halfBox, centerY + halfBox);
+            canvasContext.lineTo(centerX - halfBox + cornerLength, centerY + halfBox);
+            canvasContext.stroke();
+            
+            // Bottom-right corner
+            canvasContext.beginPath();
+            canvasContext.moveTo(centerX + halfBox - cornerLength, centerY + halfBox);
+            canvasContext.lineTo(centerX + halfBox, centerY + halfBox);
+            canvasContext.lineTo(centerX + halfBox, centerY - halfBox + cornerLength);
+            canvasContext.stroke();
+        }
+        
+        // Handle successful scan
+        function onScanSuccess(decodedText, decodedResult) {
+            debugLog(`🎯 QR Code successfully scanned!`);
+            debugLog(`📝 Content: ${decodedText}`);
+            debugLog(`📊 Length: ${decodedText.length} characters`);
+            
+            // Show result
+            const resultElement = document.getElementById('scan-result');
+            const contentElement = document.getElementById('result-content');
+            
+            contentElement.innerHTML = `
+                <strong>Raw Data:</strong><br>
+                <code>${decodedText}</code><br><br>
+                <strong>Length:</strong> ${decodedText.length} characters<br>
+                <strong>Timestamp:</strong> ${new Date().toLocaleString()}
+            `;
+            
+            resultElement.style.display = 'block';
+            updateStatus('QR Code scanned successfully!', 'success');
+            
+            // Try to parse as JSON
+            try {
+                const parsed = JSON.parse(decodedText);
+                debugLog(`📋 Parsed as JSON: ${JSON.stringify(parsed, null, 2)}`);
+                contentElement.innerHTML += `<br><br><strong>Parsed JSON:</strong><br><pre>${JSON.stringify(parsed, null, 2)}</pre>`;
+            } catch (e) {
+                debugLog(`📋 Not valid JSON, trying base64 decode...`);
+                
+                // Try base64 decode
+                try {
+                    const decoded = atob(decodedText);
+                    debugLog(`📋 Base64 decoded: ${decoded}`);
+                    contentElement.innerHTML += `<br><br><strong>Base64 Decoded:</strong><br><code>${decoded}</code>`;
+                    
+                    // Try to parse decoded as JSON
+                    try {
+                        const parsedDecoded = JSON.parse(decoded);
+                        debugLog(`📋 Decoded JSON: ${JSON.stringify(parsedDecoded, null, 2)}`);
+                        contentElement.innerHTML += `<br><br><strong>Decoded JSON:</strong><br><pre>${JSON.stringify(parsedDecoded, null, 2)}</pre>`;
+                    } catch (e2) {
+                        debugLog(`📋 Decoded content is not JSON`);
+                    }
+                } catch (e2) {
+                    debugLog(`📋 Not valid base64`);
+                }
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            debugLog('🌐 Page loaded, ZXing test ready');
+            if (typeof ZXing === 'undefined') {
+                debugLog('❌ ZXing library not loaded!');
+                updateStatus('ZXing library failed to load', 'error');
+            } else {
+                debugLog('✅ ZXing library loaded successfully');
+                updateStatus('Ready to start scanning', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Registration Form - No Animation</title>
+    <link rel="stylesheet" href="css/tactical-theme.css">
+    <link rel="stylesheet" href="css/registration-form.css">
+    <style>
+        /* Override the fadeIn animation to test if it's causing the issue */
+        .form-step {
+            display: none;
+            animation: none !important;
+            opacity: 1 !important;
+        }
+        
+        .form-step.active {
+            display: block !important;
+            opacity: 1 !important;
+        }
+        
+        /* Force visibility for debugging */
+        .registration-form {
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="registration-form">
+            <h1>Test Registration Form</h1>
+            
+            <form id="registrationForm">
+                <!-- Step 1: Account Credentials -->
+                <div class="form-step active" id="step1">
+                    <div class="step-header">
+                        <h2>Step 1: Account Credentials</h2>
+                        <p>Create your account credentials</p>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="confirm_password">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Personal Info -->
+                <div class="form-step" id="step2">
+                    <div class="step-header">
+                        <h2>Step 2: Personal Information</h2>
+                        <p>Tell us about yourself</p>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">Next</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        console.log('Test script started');
+        
+        let currentStep = 1;
+        const totalSteps = 2;
+        
+        function showStep(step) {
+            console.log('showStep called with step:', step);
+            
+            // Hide all steps
+            const steps = document.querySelectorAll('.form-step');
+            steps.forEach((stepEl, index) => {
+                stepEl.classList.remove('active');
+                console.log(`Step ${index + 1} hidden`);
+            });
+            
+            // Show current step
+            const currentStepEl = document.getElementById(`step${step}`);
+            if (currentStepEl) {
+                currentStepEl.classList.add('active');
+                console.log(`Step ${step} shown`);
+                
+                // Check computed styles
+                const computedStyle = window.getComputedStyle(currentStepEl);
+                console.log(`Step ${step} display:`, computedStyle.display);
+                console.log(`Step ${step} opacity:`, computedStyle.opacity);
+                console.log(`Step ${step} visibility:`, computedStyle.visibility);
+            }
+            
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (prevBtn) prevBtn.style.display = step === 1 ? 'none' : 'inline-block';
+            if (nextBtn) nextBtn.style.display = step === totalSteps ? 'none' : 'inline-block';
+            if (submitBtn) submitBtn.style.display = step === totalSteps ? 'inline-block' : 'none';
+        }
+        
+        function changeStep(direction) {
+            console.log('changeStep called with direction:', direction);
+            const newStep = currentStep + direction;
+            
+            if (newStep >= 1 && newStep <= totalSteps) {
+                currentStep = newStep;
+                showStep(currentStep);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing form');
+            showStep(currentStep);
+        });
+    </script>
+</body>
+</html>
