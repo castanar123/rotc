@@ -28,6 +28,7 @@ This documentation explains how the system works end-to-end, with practical how-
 - Security model: `docs/Security.md`
 - Deployment notes: `docs/Deployment.md`
 - Performance guide: `docs/Performance.md`
+- Database migration: `docs/DatabaseMigration.md`
 - Modules (per-file references): `docs/Modules/Index.md`
 - Changelog: `docs/Changelog.md`
 

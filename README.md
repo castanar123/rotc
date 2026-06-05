@@ -78,6 +78,8 @@ See `docs/Deployment.md` before pushing to GitHub or connecting the project to V
 
 The Vercel route map is included in `vercel.json`. The landing page is served first at `/`, and `/api/db-health.php` can be used after deployment to check whether Vercel can reach the configured database.
 
+For database export/import steps, see `docs/DatabaseMigration.md`.
+
 ## Performance
 
 See `docs/Performance.md` and `php.ini.performance.example` for Apache caching/compression, OPcache, and PHP runtime recommendations.
