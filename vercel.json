@@ -1,0 +1,32 @@
+{
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.9.0",
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "api/**/*.php": {
+      "runtime": "vercel-php@0.9.0",
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/(css|js|IMG|libs|Templates|QR)/(.*)",
+      "dest": "/$1/$2"
+    },
+    {
+      "src": "/(sw\\.js|manifest\\.json|favicon\\.ico|robots\\.txt)$",
+      "dest": "/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
+}

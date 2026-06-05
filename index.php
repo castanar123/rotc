@@ -21,7 +21,6 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
     }
 }
 
-require_once 'includes/db.php';
 require_once 'includes/session.php';
 
 // Redirect if already logged in

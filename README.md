@@ -76,6 +76,8 @@ The local override file is ignored by Git.
 
 See `docs/Deployment.md` before pushing to GitHub or connecting the project to Vercel. The current app expects PHP, local filesystem writes, and a local MySQL database, so Vercel needs a special plan rather than a one-click static deployment.
 
+The Vercel route map is included in `vercel.json`. The landing page is served first at `/`, and `/api/db-health.php` can be used after deployment to check whether Vercel can reach the configured database.
+
 ## Performance
 
 See `docs/Performance.md` and `php.ini.performance.example` for Apache caching/compression, OPcache, and PHP runtime recommendations.

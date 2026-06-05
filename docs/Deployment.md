@@ -36,6 +36,49 @@ Important constraints:
 - Vercel Functions have an ephemeral/read-only runtime model, so generated files should not be treated as permanent local storage.
 - PHP on Vercel depends on a community runtime path, not the default framework path.
 
+## Vercel Route Map
+
+This repository includes `vercel.json` and `api/index.php` so the public landing page is the first page shown at `/`.
+
+- `/` routes to `index.php`
+- Static folders such as `/css`, `/js`, `/IMG`, `/libs`, `/Templates`, and `/QR` are served directly
+- `/api/db-health.php` checks whether the Vercel PHP runtime can reach the database
+- Other PHP/HTML paths are routed through `api/index.php`
+
+## Vercel Database Environment
+
+Use Vercel environment variables for database configuration. The preferred variable is:
+
+```text
+DATABASE_URL=mysql://user:password@public-db-host.example.com:3306/rotc_db
+```
+
+You can also set these individually:
+
+```text
+ROTC_DB_TYPE=mysql
+ROTC_DB_SERVER=public-db-host.example.com:3306
+ROTC_DB_USER=your_user
+ROTC_DB_PASS=your_password
+ROTC_DB_NAME=rotc_db
+```
+
+Do not set `ROTC_DB_SERVER=localhost` on Vercel. That points to the Vercel function itself, not your XAMPP database.
+
+After deployment, visit:
+
+```text
+https://your-vercel-domain.vercel.app/api/db-health.php
+```
+
+Expected healthy response:
+
+```json
+{"ok":true,"database":"rotc_db","driver":"mysql","server_configured":true,"query":"ok"}
+```
+
+For temporary debugging only, set `ROTC_DEBUG=true` in Vercel to show connection errors from the health endpoint. Turn it off after fixing configuration.
+
 ## Practical Hosting Options
 
 ### Option A: Keep PHP and DB Local
@@ -45,6 +88,12 @@ Use XAMPP locally and expose the app with Cloudflare Tunnel. This best matches t
 ### Option B: Vercel Frontend, Local Backend
 
 Build a separate frontend for Vercel and keep this PHP app as a local API behind Cloudflare Tunnel. This needs API hardening, CORS rules, authentication review, and stable public tunnel URLs.
+
+If the database must remain on your local machine, the safer pattern is:
+
+- Keep MySQL private on the PC
+- Expose the PHP app/API through Cloudflare Tunnel
+- Let Vercel call that HTTPS API, not direct MySQL
 
 ### Option C: Full Cloud Deployment
 

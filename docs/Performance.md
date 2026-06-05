@@ -52,6 +52,8 @@ Restart Apache after changing PHP settings.
 
 Keep MySQL close to the PHP runtime. With the current local-database requirement, XAMPP or a Cloudflare Tunnel to the local machine is a better match than a direct Vercel deployment.
 
+When deploying to Vercel, the database host must be internet-reachable. Use `DATABASE_URL` or `ROTC_DB_*` environment variables; never use `localhost` for Vercel production.
+
 For query performance:
 
 - Use `EXPLAIN` on slow dashboard and report queries.
