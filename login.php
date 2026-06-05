@@ -6,7 +6,6 @@ ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Disable display, only log errors
 ini_set('log_errors', 1);
-ini_set('error_log', 'login_errors.log');
 
 require_once 'includes/db.php';
 require_once 'includes/session.php';
@@ -14,11 +13,18 @@ require_once 'includes/TwoFactorAuth.php';
 require_once 'includes/SecurityLogger.php';
 require_once 'includes/term_enrollment.php';
 
+$logger = new SecurityLogger();
+$dbAvailable = isset($pdo) && $pdo instanceof PDO;
+$dbDebugEnabled = getenv('ROTC_DEBUG') === 'true';
+
 // Debug logging function
 function debug_log($message) {
     $timestamp = date('Y-m-d H:i:s');
-    file_put_contents('login_debug.log', "[$timestamp] $message\n", FILE_APPEND);
+    error_log("[$timestamp] login.php: $message");
 }
+
+$errors = [];
+$success_message = '';
 
 debug_log("Login page accessed");
 
@@ -32,16 +38,13 @@ if (isset($_GET['error']) && $_GET['error'] === 'account_locked') {
     $errors[] = 'Account temporarily locked due to too many failed login attempts. Please try again in 15 minutes.';
 }
 
-$errors = [];
-$success_message = '';
-
 // Generate CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // Rate limiting: Track login attempts per IP
-$client_ip = $_SERVER['REMOTE_ADDR'];
+$client_ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 $rate_limit_key = 'login_attempts_' . str_replace(['.', ':'], '_', $client_ip);
 
 if (!isset($_SESSION[$rate_limit_key])) {
@@ -63,8 +66,16 @@ if ($_SESSION[$rate_limit_key]['count'] >= 20) {
     $logger->logSecurityEvent(null, 'RATE_LIMIT_EXCEEDED', 'IP rate limit exceeded', ['ip' => $client_ip], 'medium');
 }
 
+if (!$dbAvailable) {
+    $errors[] = 'The database is not reachable right now. Please check the hosted database settings and try again.';
+    if ($dbDebugEnabled && isset($GLOBALS['DB_CONNECTION_ERROR'])) {
+        $errors[] = 'Database detail: ' . $GLOBALS['DB_CONNECTION_ERROR'];
+    }
+    debug_log('Database unavailable on login page');
+}
+
 // Handle login form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     debug_log("POST request received");
     
     // Verify CSRF token
@@ -83,6 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         debug_log("Username: $username");
         debug_log("Password length: " . strlen($password));
+
+        if (!$dbAvailable) {
+            $errors[] = 'Login cannot continue until the application can connect to the database.';
+        }
     
     // Validation
     if (empty($username)) {
@@ -98,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         debug_log("Starting user lookup");
         try {
             $twoFA = new TwoFactorAuth();
-            $logger = new SecurityLogger();
             
             // Check if user exists (by username or email)
             $stmt = $pdo->prepare("
