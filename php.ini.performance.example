@@ -1,0 +1,28 @@
+; Copy these settings into the active PHP configuration after testing.
+; XAMPP usually loads php.ini from C:\xampp\php\php.ini.
+
+; Keep PHP modern. PHP 8.5 is the current line in 2026; PHP 8.2+ is the
+; minimum supported target for this project.
+
+opcache.enable=1
+opcache.enable_cli=0
+opcache.memory_consumption=192
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=20000
+opcache.validate_timestamps=1
+opcache.revalidate_freq=2
+opcache.jit=tracing
+opcache.jit_buffer_size=64M
+
+realpath_cache_size=4096K
+realpath_cache_ttl=600
+
+zlib.output_compression=On
+zlib.output_compression_level=5
+
+expose_php=Off
+session.lazy_write=1
+default_charset=UTF-8
+
+; Required by phpoffice/phpword 1.4+ for DOCX processing.
+extension=zip

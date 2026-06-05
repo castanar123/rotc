@@ -18,6 +18,8 @@ This is a web-based portal for managing ROTC cadet information, attendance, grad
 ### Prerequisites
 
 - A web server stack like XAMPP (Apache, MySQL, PHP)
+- PHP 8.2 or newer; PHP 8.5.x is recommended where available
+- PHP extensions: `zip`, `dom`, `xml`, and `json`
 - A modern web browser
 
 ### Installation
@@ -73,3 +75,7 @@ The local override file is ignored by Git.
 ## Deployment Notes
 
 See `docs/Deployment.md` before pushing to GitHub or connecting the project to Vercel. The current app expects PHP, local filesystem writes, and a local MySQL database, so Vercel needs a special plan rather than a one-click static deployment.
+
+## Performance
+
+See `docs/Performance.md` and `php.ini.performance.example` for Apache caching/compression, OPcache, and PHP runtime recommendations.

@@ -27,6 +27,7 @@ This documentation explains how the system works end-to-end, with practical how-
   - Announcements: `docs/CoreFeatures/Announcements.md`
 - Security model: `docs/Security.md`
 - Deployment notes: `docs/Deployment.md`
+- Performance guide: `docs/Performance.md`
 - Modules (per-file references): `docs/Modules/Index.md`
 - Changelog: `docs/Changelog.md`
 
