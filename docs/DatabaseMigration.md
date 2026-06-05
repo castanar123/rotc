@@ -63,7 +63,7 @@ Then import the verified full dump:
 After import, set this in Vercel:
 
 ```text
-DATABASE_URL=mysql://your_db_user:your_db_password@your-public-db-host.example.com:3306/rotc_db
+DATABASE_URL=mysql://your_db_user:your_db_password@your-public-db-host.example.com:3306/rotc_db?ssl=true
 ```
 
 Then redeploy and test:

@@ -49,12 +49,22 @@ if (!function_exists('rotc_database_url_config')) {
         $port = isset($parts['port']) ? ':' . $parts['port'] : '';
         $path = isset($parts['path']) ? ltrim($parts['path'], '/') : '';
 
+        $query = [];
+        if (!empty($parts['query'])) {
+            parse_str($parts['query'], $query);
+        }
+
+        $sslMode = strtolower((string)($query['ssl-mode'] ?? $query['sslmode'] ?? $query['ssl'] ?? ''));
+        $sslEnabled = in_array($sslMode, ['1', 'true', 'required', 'verify_ca', 'verify_identity'], true);
+
         return [
             'type' => str_contains($scheme, 'sqlite') ? 'sqlite' : 'mysql',
             'server' => $host . $port,
             'username' => isset($parts['user']) ? rawurldecode($parts['user']) : '',
             'password' => isset($parts['pass']) ? rawurldecode($parts['pass']) : '',
             'database' => $path !== '' ? rawurldecode($path) : 'rotc_db',
+            'ssl' => $sslEnabled ? 'true' : '',
+            'ssl_ca' => isset($query['ssl-ca']) ? rawurldecode((string)$query['ssl-ca']) : '',
         ];
     }
 }
@@ -79,4 +89,12 @@ if (!defined('DB_PASSWORD')) {
 
 if (!defined('DB_NAME')) {
     define('DB_NAME', rotc_env('ROTC_DB_NAME', $databaseUrlConfig['database'] ?? 'rotc_db'));
+}
+
+if (!defined('DB_SSL')) {
+    define('DB_SSL', rotc_env('ROTC_DB_SSL', $databaseUrlConfig['ssl'] ?? 'false'));
+}
+
+if (!defined('DB_SSL_CA')) {
+    define('DB_SSL_CA', rotc_env('ROTC_DB_SSL_CA', $databaseUrlConfig['ssl_ca'] ?? ''));
 }

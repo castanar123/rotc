@@ -62,6 +62,54 @@ if (!function_exists('rotc_mysql_dsn')) {
     }
 }
 
+if (!function_exists('rotc_bool_env')) {
+    function rotc_bool_env($value) {
+        return in_array(strtolower((string)$value), ['1', 'true', 'yes', 'on', 'required'], true);
+    }
+}
+
+if (!function_exists('rotc_mysql_ssl_enabled')) {
+    function rotc_mysql_ssl_enabled() {
+        return defined('DB_SSL') && rotc_bool_env(DB_SSL);
+    }
+}
+
+if (!function_exists('rotc_mysql_pdo_options')) {
+    function rotc_mysql_pdo_options() {
+        $options = [];
+
+        if (rotc_mysql_ssl_enabled() && defined('PDO::MYSQL_ATTR_SSL_CA') && defined('DB_SSL_CA') && DB_SSL_CA !== '') {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
+        }
+
+        return $options;
+    }
+}
+
+if (!function_exists('rotc_mysqli_connect')) {
+    function rotc_mysqli_connect($server, $username, $password, $database) {
+        list($mysqlHost, $mysqlPort) = rotc_parse_mysql_server($server);
+
+        if (!rotc_mysql_ssl_enabled()) {
+            return new mysqli($mysqlHost, $username, $password, $database, $mysqlPort ?: null);
+        }
+
+        $mysqli = mysqli_init();
+        if (!$mysqli) {
+            throw new mysqli_sql_exception('Failed to initialize mysqli');
+        }
+
+        if (defined('DB_SSL_CA') && DB_SSL_CA !== '') {
+            $mysqli->ssl_set(null, null, DB_SSL_CA, null, null);
+        }
+
+        $flags = defined('MYSQLI_CLIENT_SSL') ? MYSQLI_CLIENT_SSL : 0;
+        $mysqli->real_connect($mysqlHost, $username, $password, $database, $mysqlPort ?: null, null, $flags);
+
+        return $mysqli;
+    }
+}
+
 // --- Environment-Aware Database Connection ---
 global $pdo, $link;
 
@@ -103,15 +151,14 @@ try {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         
         // Create a new mysqli object (Object-Oriented style)
-        list($mysqlHost, $mysqlPort) = rotc_parse_mysql_server(DB_SERVER);
-        $link = new mysqli($mysqlHost, DB_USERNAME, DB_PASSWORD, DB_NAME, $mysqlPort ?: null);
+        $link = rotc_mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
         
         // Set the character set to utf8mb4 for full Unicode support
         $link->set_charset("utf8mb4");
         
         // Also create PDO connection for compatibility (parse host:port if provided)
         if (class_exists('PDO')) {
-            $pdo = new PDO(rotc_mysql_dsn(DB_SERVER, DB_NAME), DB_USERNAME, DB_PASSWORD);
+            $pdo = new PDO(rotc_mysql_dsn(DB_SERVER, DB_NAME), DB_USERNAME, DB_PASSWORD, rotc_mysql_pdo_options());
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
@@ -143,14 +190,13 @@ try {
 }
 
 // --- Secondary fallback attempt for common XAMPP default (empty password) ---
-if (DB_TYPE === 'mysql' && (!isset($link) || !$link) && isset($GLOBALS['DB_CONNECTION_ERROR'])) {
+if (DB_TYPE === 'mysql' && !rotc_mysql_ssl_enabled() && (!isset($link) || !$link) && isset($GLOBALS['DB_CONNECTION_ERROR'])) {
     try {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         $fallbackPassword = '';
-        list($mysqlHost, $mysqlPort) = rotc_parse_mysql_server(DB_SERVER);
-        $link = new mysqli($mysqlHost, DB_USERNAME, $fallbackPassword, DB_NAME, $mysqlPort ?: null);
+        $link = rotc_mysqli_connect(DB_SERVER, DB_USERNAME, $fallbackPassword, DB_NAME);
         $link->set_charset("utf8mb4");
-        $pdo = new PDO(rotc_mysql_dsn(DB_SERVER, DB_NAME), DB_USERNAME, $fallbackPassword);
+        $pdo = new PDO(rotc_mysql_dsn(DB_SERVER, DB_NAME), DB_USERNAME, $fallbackPassword, rotc_mysql_pdo_options());
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
