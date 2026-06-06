@@ -74,12 +74,28 @@ if (!function_exists('rotc_mysql_ssl_enabled')) {
     }
 }
 
+if (!function_exists('rotc_mysql_ssl_ca_path')) {
+    function rotc_mysql_ssl_ca_path() {
+        if (!rotc_mysql_ssl_enabled()) {
+            return '';
+        }
+
+        if (defined('DB_SSL_CA') && DB_SSL_CA !== '') {
+            return DB_SSL_CA;
+        }
+
+        $bundledCa = __DIR__ . '/../certs/isrgrootx1.pem';
+        return file_exists($bundledCa) ? $bundledCa : '';
+    }
+}
+
 if (!function_exists('rotc_mysql_pdo_options')) {
     function rotc_mysql_pdo_options() {
         $options = [];
+        $caPath = rotc_mysql_ssl_ca_path();
 
-        if (rotc_mysql_ssl_enabled() && defined('PDO::MYSQL_ATTR_SSL_CA') && defined('DB_SSL_CA') && DB_SSL_CA !== '') {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
+        if ($caPath !== '' && defined('PDO::MYSQL_ATTR_SSL_CA')) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $caPath;
         }
 
         return $options;
@@ -99,8 +115,9 @@ if (!function_exists('rotc_mysqli_connect')) {
             throw new mysqli_sql_exception('Failed to initialize mysqli');
         }
 
-        if (defined('DB_SSL_CA') && DB_SSL_CA !== '') {
-            $mysqli->ssl_set(null, null, DB_SSL_CA, null, null);
+        $caPath = rotc_mysql_ssl_ca_path();
+        if ($caPath !== '') {
+            $mysqli->ssl_set(null, null, $caPath, null, null);
         }
 
         $flags = defined('MYSQLI_CLIENT_SSL') ? MYSQLI_CLIENT_SSL : 0;

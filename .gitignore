@@ -94,3 +94,5 @@ activities_test_results.txt
 database_check_results.html
 test_qr_output.png
 *_output.txt
+
+.vercel
