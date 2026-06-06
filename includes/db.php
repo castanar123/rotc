@@ -74,6 +74,12 @@ if (!function_exists('rotc_mysql_ssl_enabled')) {
     }
 }
 
+if (!function_exists('rotc_is_hosted_mysql')) {
+    function rotc_is_hosted_mysql() {
+        return rotc_mysql_ssl_enabled();
+    }
+}
+
 if (!function_exists('rotc_mysql_ssl_ca_path')) {
     function rotc_mysql_ssl_ca_path() {
         if (!rotc_mysql_ssl_enabled()) {
@@ -113,6 +119,13 @@ if (!function_exists('rotc_mysqli_connect')) {
         $mysqli = mysqli_init();
         if (!$mysqli) {
             throw new mysqli_sql_exception('Failed to initialize mysqli');
+        }
+
+        if (defined('MYSQLI_OPT_CONNECT_TIMEOUT')) {
+            $mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 5);
+        }
+        if (defined('MYSQLI_OPT_READ_TIMEOUT')) {
+            $mysqli->options(MYSQLI_OPT_READ_TIMEOUT, 10);
         }
 
         $caPath = rotc_mysql_ssl_ca_path();
@@ -178,10 +191,13 @@ try {
             $pdo = new PDO(rotc_mysql_dsn(DB_SERVER, DB_NAME), DB_USERNAME, DB_PASSWORD, rotc_mysql_pdo_options());
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $pdo->setAttribute(PDO::ATTR_TIMEOUT, 10);
             
-            // Keep SQL strict without deprecated modes removed in MySQL 8.
-            $pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
-            $link->query("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+            // Keep local MySQL strict; skip hosted SSL DBs to avoid extra remote round trips.
+            if (!rotc_is_hosted_mysql()) {
+                $pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+                $link->query("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+            }
         } else {
             // PDO extension not available; continue with mysqli-only mode
             $pdo = null;

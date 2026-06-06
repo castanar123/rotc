@@ -52,8 +52,10 @@ class SecurityLogger {
                 $sev
             ]);
             $logId = $this->pdo->lastInsertId();
-            // Check if this event requires immediate notification
-            $this->checkForAlerts($logId, $eventType, $sev, $metadata);
+            // Low-severity routine events should not do extra alert queries on every request.
+            if ($sev !== 'low') {
+                $this->checkForAlerts($logId, $eventType, $sev, $metadata);
+            }
             return $logId;
         } catch (Throwable $e) {
             error_log('Security logging failed: ' . $e->getMessage());
