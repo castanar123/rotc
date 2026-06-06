@@ -44,6 +44,7 @@ if (
     is_file($absoluteTarget) &&
     in_array($extension, $allowedExtensions, true)
 ) {
+    chdir(dirname($absoluteTarget));
     require $absoluteTarget;
     return;
 }
