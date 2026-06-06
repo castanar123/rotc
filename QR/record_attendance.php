@@ -9,13 +9,10 @@ ini_set('display_errors', 0);
  * Records student attendance in the database and maintains session state
  */
 
+require_once __DIR__ . '/../includes/session.php';
+
 // Include database connection only
 require_once 'db.php';
-
-// Start or resume the PHP session (for TD/semester persistence)
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 // --- Minimal DB schema helpers (no external includes) ---
 function getCurrentDatabaseNamePDO($pdo) {

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
 
@@ -7,7 +7,7 @@ require_once '../includes/functions.php';
 check_login();
 
 // Access control: Admin only for editing
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Access denied']);
     exit;

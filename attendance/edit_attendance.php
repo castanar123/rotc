@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 
 // Admin only
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Access denied. Admins only.']);
     exit;

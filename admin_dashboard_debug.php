@@ -1,8 +1,7 @@
 <?php
 // Debug version of admin dashboard to force refresh and show actual values
-session_start();
-require_once 'includes/db.php';
 require_once 'includes/session.php';
+require_once 'includes/db.php';
 
 // Force no caching
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -10,8 +9,8 @@ header("Pragma: no-cache");
 header("Expires: 0");
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

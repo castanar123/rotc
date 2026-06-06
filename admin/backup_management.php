@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 require_once '../includes/BackupManager.php';
 require_once '../includes/SecurityLogger.php';
@@ -8,8 +8,8 @@ require_once '../includes/SecurityLogger.php';
 date_default_timezone_set('Asia/Manila');
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: ../login.php');
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

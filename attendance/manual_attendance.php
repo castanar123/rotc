@@ -4,13 +4,13 @@ require_once '../includes/db.php';
 
 // Check if user is logged in and has proper permissions
 if (!isset($_SESSION['loggedin'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 
 // Only allow admin and instructors to manually record attendance
-if (!in_array($_SESSION['role'], ['admin', 'instructor'])) {
-    header('Location: ../dashboard.php');
+if (!rotc_role_in(['admin', 'instructor', '1cl'])) {
+    header('Location: ' . rotc_dashboard_url());
     exit;
 }
 

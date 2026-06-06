@@ -21,10 +21,11 @@ function sanitize_input($data) {
  * @return bool
  */
 function check_role($allowed_roles) {
-    if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowed_roles)) {
-        return false;
+    if (function_exists('rotc_role_in')) {
+        return rotc_role_in($allowed_roles);
     }
-    return true;
+
+    return isset($_SESSION['role']) && in_array($_SESSION['role'], $allowed_roles, true);
 }
 
 /**

@@ -65,12 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Include database connection and rifle functions
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 require_once '../includes/rifle_functions.php';
 require_once '../includes/SecurityLogger.php';
-
-// Start session for user authentication
-session_start();
 
 // Initialize SecurityLogger
 $securityLogger = new SecurityLogger();

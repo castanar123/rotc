@@ -4,8 +4,8 @@ require_once 'includes/db.php';
 require_once 'includes/SecurityLogger.php';
 require_once 'includes/term_enrollment.php';
 
-// Check if user is logged in and is officer
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'officer') {
+// Check if user is logged in and is an officer-level role
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['officer', '1cl', '2cl', 'commandant'])) {
     SecurityLogger::log('UNAUTHORIZED_ACCESS', 'HIGH', 'Non-officer attempted to access officer dashboard', [
         'user_id' => $_SESSION['user_id'] ?? null,
         'username' => $_SESSION['username'] ?? 'anonymous',
@@ -13,7 +13,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'officer') {
         'ip_address' => $_SERVER['REMOTE_ADDR'],
         'user_agent' => $_SERVER['HTTP_USER_AGENT']
     ]);
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 
@@ -21,7 +21,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'officer') {
 SecurityLogger::log('OFFICER_ACCESS', 'LOW', 'Officer accessed dashboard', [
     'user_id' => $_SESSION['user_id'],
     'username' => $_SESSION['username'],
-    'platoon' => $_SESSION['platoon'],
+    'platoon' => $_SESSION['platoon'] ?? '',
     'ip_address' => $_SERVER['REMOTE_ADDR']
 ]);
 
@@ -39,7 +39,7 @@ $__activeTerm = get_active_term();
 try {
     // Cadets under supervision
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM users WHERE role IN ('cadet', 'basic_cadet') AND platoon = ? AND status = 'active'");
-    $stmt->execute([$_SESSION['platoon']]);
+    $stmt->execute([$_SESSION['platoon'] ?? '']);
     $my_cadets = $stmt->fetch()['total'];
     
     // Today's attendance for my platoon
@@ -49,7 +49,7 @@ try {
         JOIN users u ON al.user_id = u.id 
         WHERE DATE(al.timestamp) = CURDATE() AND u.platoon = ?
     ");
-    $stmt->execute([$_SESSION['platoon']]);
+    $stmt->execute([$_SESSION['platoon'] ?? '']);
     $today_attendance = $stmt->fetch()['present'];
     
     // Attendance rate calculation
@@ -64,7 +64,7 @@ try {
         ORDER BY al.timestamp DESC 
         LIMIT 10
     ");
-    $stmt->execute([$_SESSION['platoon'], $_SESSION['user_id']]);
+    $stmt->execute([$_SESSION['platoon'] ?? '', $_SESSION['user_id']]);
     $recent_activities = $stmt->fetchAll();
     
     // Pending tasks count

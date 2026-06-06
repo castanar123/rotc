@@ -5,10 +5,10 @@ require_once 'includes/SecurityLogger.php';
 
 // Admin-only access
 check_login();
-if ($_SESSION['role'] !== 'admin') {
+if (!rotc_role_in(['admin'])) {
     $securityLogger = new SecurityLogger($pdo);
     $securityLogger->logSecurityEvent($_SESSION['user_id'] ?? null, 'UNAUTHORIZED_ACCESS', 'Non-admin user attempted to access user management', 'high');
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

@@ -1,10 +1,10 @@
 <?php
-require_once '../includes/session.php';
-require_once '../includes/db.php';
+require_once 'includes/session.php';
+require_once 'includes/db.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['loggedin'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

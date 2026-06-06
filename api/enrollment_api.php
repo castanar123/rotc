@@ -4,13 +4,13 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type');
 
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 
 global $link;
 
 // Check if user is logged in and has admin privileges
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized access']);
     exit();

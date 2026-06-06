@@ -4,8 +4,8 @@
     check_login();
 
 // Admin only for now
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

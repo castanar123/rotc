@@ -1,15 +1,15 @@
 <?php
 // rifle_backup_manager.php - Backup management interface for rifle system
 
-session_start();
+require_once 'includes/session.php';
 require_once 'includes/db.php';
 require_once 'includes/rifle_backup.php';
 require_once 'includes/SecurityLogger.php';
 
 // Check if user is logged in and has admin privileges
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'commandant'])) {
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin', 'commandant'])) {
     SecurityLogger::logSecurityEvent('UNAUTHORIZED_ACCESS', 'Non-admin user attempted to access rifle backup manager', $_SESSION['user_id'] ?? null, 'HIGH');
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

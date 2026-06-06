@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db_connection.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

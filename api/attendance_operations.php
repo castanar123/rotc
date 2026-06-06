@@ -26,11 +26,6 @@ require_once '../includes/term_enrollment.php';
 // Initialize SecurityLogger
 $securityLogger = new SecurityLogger();
 
-// Start session for user authentication
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 try {
     ensure_term_enrollment_schema();
 } catch (Throwable $e) {

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'includes/session.php';
 require_once 'includes/db_connection.php';
 require_once 'libs/phpqrcode/qrlib.php';
 
@@ -9,7 +9,7 @@ ini_set('display_errors', 0);
 
 // Simple access control
 if (!isset($_SESSION['user_id'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

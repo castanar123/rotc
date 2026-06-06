@@ -4,7 +4,7 @@ require_once '../includes/db.php';
 check_login();
 
 // Access control: Admin only
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
     header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }

@@ -6,7 +6,7 @@ ini_set('error_log', '../logs/lookup_attendance_errors.log');
 // Start output buffering to prevent any unwanted output
 ob_start();
 
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
 
@@ -29,7 +29,7 @@ try {
 }
 
 // Access control: Admin and basic users
-if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['admin', 'basic'])) {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin', 'basic', 'basic_cadet', 'basic-cadet', 'cadet'])) {
     error_log("Access denied - User role: " . ($_SESSION['role'] ?? 'not set') . ", Logged in: " . ($_SESSION['loggedin'] ?? 'not set'));
     ob_clean();
     http_response_code(403);

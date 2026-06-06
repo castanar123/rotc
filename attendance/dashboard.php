@@ -4,7 +4,7 @@ require_once '../includes/db.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['loggedin'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 
@@ -57,7 +57,7 @@ try {
         <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <a href="../<?php echo $_SESSION['role']; ?>_dashboard.php" class="btn btn-outline">
+                <a href="<?php echo rotc_dashboard_url(); ?>" class="btn btn-outline">
                     <i class="fas fa-arrow-left"></i>
                     Back to Dashboard
                 </a>
@@ -70,7 +70,7 @@ try {
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <span class="user-name"><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></span>
+                        <span class="user-name"><?php echo htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'User'); ?></span>
                         <span class="user-role"><?php echo ucfirst($_SESSION['role']); ?></span>
                     </div>
                 </div>

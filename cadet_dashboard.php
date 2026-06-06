@@ -14,17 +14,17 @@ $__terms = get_all_terms();
 $__activeTerm = get_active_term();
 
 // Check if user is logged in and is a cadet
-if (!isset($_SESSION['user_id']) || (isset($_SESSION['role']) && !in_array($_SESSION['role'], ['cadet', 'basic_cadet']))) {
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['cadet', 'basic_cadet', 'basic-cadet', 'basic'])) {
     // Allow access if user_id is set, even if role is not defined (for legacy compatibility)
     if (!isset($_SESSION['user_id'])) {
-        header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+        header('Location: ' . rotc_relative_url('login.php'));
         exit;
     }
 }
 
 // Get cadet's profile information for QR generation
 $cadet_profile = null;
-if ($_SESSION['role'] === 'basic_cadet') {
+if (rotc_role_in(['basic_cadet', 'basic-cadet', 'basic', 'cadet'])) {
     try {
         $stmt = $pdo->prepare("SELECT student_id, first_name, last_name FROM cadet_profiles WHERE user_id = ?");
         $stmt->execute([$_SESSION['user_id']]);

@@ -60,7 +60,7 @@ function rm_borrower_key_col($link) {
 }
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
     // Log unauthorized access attempt
     $security_logger = new SecurityLogger();
     $security_logger->logSecurityEvent(
@@ -77,7 +77,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
         sendCleanJsonResponse(['success' => false, 'message' => 'Authentication required', 'redirect' => 'login.php']);
         exit;
     }
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

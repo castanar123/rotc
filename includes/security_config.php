@@ -460,7 +460,8 @@ class SecurityConfig {
         if (!$this->hasPageAccess($user_role, $page)) {
             $this->secure_db->auditLog('UNAUTHORIZED_PAGE_ACCESS', "Unauthorized access attempt to {$page}", $user_id, 'HIGH');
             header('HTTP/1.1 403 Forbidden');
-            header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php?error=access_denied');
+            $loginUrl = function_exists('rotc_relative_url') ? rotc_relative_url('login.php') : 'login.php';
+            header('Location: ' . $loginUrl . '?error=access_denied');
             exit;
         }
         
@@ -476,7 +477,8 @@ class SecurityConfig {
         if (!$this->validateSession($user_id)) {
             $this->secure_db->auditLog('SESSION_EXPIRED', 'Session expired during page access', $user_id, 'MEDIUM');
             session_destroy();
-            header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php?error=session_expired');
+            $loginUrl = function_exists('rotc_relative_url') ? rotc_relative_url('login.php') : 'login.php';
+            header('Location: ' . $loginUrl . '?error=session_expired');
             exit;
         }
         

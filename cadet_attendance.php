@@ -12,7 +12,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
     header('Content-Type: application/json');
     
     // Check if user is logged in and is cadet
-    if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['cadet', 'basic_cadet'])) {
+    if (!isset($_SESSION['loggedin']) || !rotc_role_in(['cadet', 'basic_cadet', 'basic-cadet', 'basic'])) {
         echo json_encode(['error' => 'Unauthorized']);
         exit;
     }
@@ -127,8 +127,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
 }
 
 // Check if user is logged in and is cadet (for regular HTML page)
-if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['cadet', 'basic_cadet'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['cadet', 'basic_cadet', 'basic-cadet', 'basic'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

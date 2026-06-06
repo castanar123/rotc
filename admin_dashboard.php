@@ -8,9 +8,9 @@ require_once 'includes/term_enrollment.php';
 $securityLogger = new SecurityLogger();
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
     $securityLogger->logSecurityEvent($_SESSION['user_id'] ?? null, 'UNAUTHORIZED_ACCESS', 'Non-admin user attempted to access admin dashboard', [], 'high');
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

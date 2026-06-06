@@ -27,8 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Start or resume the PHP session
-session_start();
+require_once __DIR__ . '/../includes/session.php';
 
 // Include database connection (use centralized includes to avoid config conflicts)
 require_once __DIR__ . '/../includes/db.php';

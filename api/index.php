@@ -28,7 +28,57 @@ foreach ($blockedPatterns as $pattern) {
     }
 }
 
-$target = $requestPath === '' ? 'index.php' : $requestPath;
+$friendlyRoutes = [
+    'home' => 'index.php',
+    'login' => 'login.php',
+    'register' => 'register.php',
+    'logout' => 'logout.php',
+    'forgot-password' => 'forgot-password.php',
+    'verify-2fa' => 'verify_2fa.php',
+    'verify-pin' => 'verify_pin.php',
+    'dashboard' => 'dashboard.php',
+    'admin' => 'admin_dashboard.php',
+    'admin/dashboard' => 'admin_dashboard.php',
+    'admin/registrations' => 'admin/registration_approvals.php',
+    'cadet' => 'cadet_dashboard.php',
+    'cadet/dashboard' => 'cadet_dashboard.php',
+    'cadet/profile' => 'my_profile.php',
+    'officer' => 'officer_dashboard.php',
+    'officer/dashboard' => 'officer_dashboard.php',
+    'officer/profile' => 'officer_profile.php',
+    'qr' => 'QR/home.php',
+    'qr/home' => 'QR/home.php',
+    'qr/dashboard' => 'QR/dashboard.php',
+    'qr/setup' => 'QR/setup.php',
+    'qr/scan' => 'QR/index.php',
+    'attendance' => 'attendance/dashboard.php',
+    'attendance/dashboard' => 'attendance/dashboard.php',
+    'attendance/logs' => 'attendance/logs.php',
+    'attendance/manual' => 'attendance/manual_attendance.php',
+    'attendance/scan' => 'attendance/scan.php',
+    'users' => 'user_management.php',
+    'users/add' => 'add_user.php',
+    'users/edit' => 'edit_user.php',
+    'profile' => 'profile.php',
+    'rifles' => 'rifle_management.php',
+    'rifles/borrow' => 'borrow_rifle.php',
+    'rifles/scanner' => 'rifle_scanner.php',
+    'announcements' => 'announcements.php',
+    'grades' => 'grades/view_grades.php',
+    'grades/manage' => 'grades/manage_grades.php',
+    'reports' => 'reports/view_report.php',
+    'reports/generate' => 'reports/generate_report.php',
+    'settings' => 'user_settings.php',
+];
+
+$target = $requestPath === '' ? 'index.php' : ($friendlyRoutes[$requestPath] ?? $requestPath);
+
+if ($target !== '' && pathinfo($target, PATHINFO_EXTENSION) === '') {
+    $phpTarget = $target . '.php';
+    if (is_file($rootDir . DIRECTORY_SEPARATOR . $phpTarget)) {
+        $target = $phpTarget;
+    }
+}
 
 if (is_dir($rootDir . DIRECTORY_SEPARATOR . $target)) {
     $target = rtrim($target, '/') . '/index.php';

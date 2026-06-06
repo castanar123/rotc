@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo json_
 
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/SecurityLogger.php';
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__ . '/../../includes/session.php';
 
 try {
     // Ensure tables exist

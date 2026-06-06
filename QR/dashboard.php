@@ -4,12 +4,12 @@ require_once '../includes/db.php';
 check_login();
 
 // Access control: Admin and basic users
-if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['admin', 'basic'])) {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin', 'basic', 'basic_cadet', 'basic-cadet', 'cadet'])) {
     header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 
-$is_admin = $_SESSION['role'] === 'admin';
+$is_admin = rotc_role_in(['admin']);
 $current_user_id = $_SESSION['user_id'];
 
 // Pending registrations count (cadet roles awaiting approval)

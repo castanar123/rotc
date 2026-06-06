@@ -5,9 +5,9 @@ require_once 'includes/SecurityLogger.php';
 check_login();
 
 // Access control: Admin only
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin'])) {
     SecurityLogger::logSecurityEvent('UNAUTHORIZED_ACCESS', 'Non-admin user attempted to access system settings', $_SESSION['user_id'] ?? null, 'HIGH');
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

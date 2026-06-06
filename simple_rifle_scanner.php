@@ -1,10 +1,10 @@
 <?php
-session_start();
+require_once 'includes/session.php';
 require_once 'includes/db_connection.php';
 
 // Simple access control - you can modify this as needed
 if (!isset($_SESSION['user_id'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 ?>

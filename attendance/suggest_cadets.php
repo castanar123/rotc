@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/session.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
 
@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 try {
     // Auth: admin or basic
     check_login();
-    if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['admin', 'basic'])) {
+    if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin', 'basic', 'basic_cadet', 'basic-cadet', 'cadet'])) {
         http_response_code(403);
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         exit;

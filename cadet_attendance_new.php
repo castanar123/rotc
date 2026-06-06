@@ -3,10 +3,10 @@ require_once 'includes/db.php';
 require_once 'includes/session.php';
 
 // Check if user is logged in and is a cadet
-if (!isset($_SESSION['user_id']) || (isset($_SESSION['role']) && !in_array($_SESSION['role'], ['cadet', 'basic_cadet']))) {
+if (!isset($_SESSION['user_id']) || (isset($_SESSION['role']) && !rotc_role_in(['cadet', 'basic_cadet', 'basic-cadet', 'basic']))) {
     // Allow access if user_id is set, even if role is not defined (for legacy compatibility)
     if (!isset($_SESSION['user_id'])) {
-        header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+        header('Location: ' . rotc_relative_url('login.php'));
         exit();
     }
 }

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'includes/session.php';
 
 // Destroy all session data
 $_SESSION = array();
@@ -17,6 +17,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Redirect to home page
-header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/index.php');
+header('Location: ' . rotc_relative_url('index.php'));
 exit();
 ?>

@@ -4,8 +4,8 @@ require_once '../includes/session.php';
 check_login();
 
 // Access control: Admin only
-if (!isset($_SESSION['loggedin']) || $_SESSION['role'] !== 'admin') {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+if (!isset($_SESSION['loggedin']) || !rotc_role_in(['admin', 'instructor', '1cl', '2cl', 'commandant'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 

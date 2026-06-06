@@ -3,7 +3,7 @@ require_once 'includes/session.php';
 
 // This page should be secure
 if (!isset($_SESSION['user_id'])) {
-    header('location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 

@@ -4,7 +4,7 @@ require_once '../includes/db.php';
 
 // Access control: Allow Admins and Instructors
 check_login();
-if (!in_array($_SESSION['role'], ['admin', 'instructor', '1cl', '2cl'])) {
+if (!rotc_role_in(['admin', 'instructor', '1cl', '2cl', 'commandant'])) {
     redirect_to_dashboard();
 }
 
