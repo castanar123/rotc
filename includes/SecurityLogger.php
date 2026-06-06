@@ -3,6 +3,12 @@ require_once __DIR__ . '/db.php';
 
 class SecurityLogger {
     private $pdo;
+
+    public static function log($eventType, $severity, $description, $metadata = []) {
+        $logger = new self();
+        $userId = is_array($metadata) && array_key_exists('user_id', $metadata) ? $metadata['user_id'] : null;
+        return $logger->logSecurityEvent($userId, $eventType, $description, is_array($metadata) ? $metadata : [], $severity);
+    }
     
     public function __construct($pdoArg = null) {
         global $pdo;

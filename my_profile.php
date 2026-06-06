@@ -5,7 +5,7 @@ require_once 'includes/SecurityLogger.php';
 
 // Cadet and basic cadet access
 check_login();
-if (!in_array($_SESSION['role'], ['cadet', 'basic_cadet'])) {
+if (!rotc_role_in(['cadet', 'basic_cadet', 'basic-cadet', 'basic'])) {
     SecurityLogger::log('UNAUTHORIZED_ACCESS', 'HIGH', 'Non-cadet attempted to access cadet profile page', [
         'user_id' => $_SESSION['user_id'] ?? null,
         'username' => $_SESSION['username'] ?? 'anonymous',
