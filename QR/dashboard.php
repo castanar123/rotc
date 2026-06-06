@@ -5,7 +5,7 @@ check_login();
 
 // Access control: Admin and basic users
 if (!isset($_SESSION['loggedin']) || !in_array($_SESSION['role'], ['admin', 'basic'])) {
-    header('Location: https://rotc.lspulbrotcunit.online/generate%20qr/login.php');
+    header('Location: ' . rotc_relative_url('login.php'));
     exit;
 }
 
