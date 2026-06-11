@@ -2,6 +2,7 @@
 require_once 'includes/session.php';
 require_once 'includes/db.php';
 require_once 'includes/SecurityLogger.php';
+require_once 'includes/user_admin_helpers.php';
 
 // Admin-only access
 check_login();
@@ -16,15 +17,29 @@ if (!rotc_role_in(['admin'])) {
 $securityLogger = new SecurityLogger($pdo);
 $securityLogger->logSecurityEvent($_SESSION['user_id'], 'ADMIN_ACCESS', 'Admin accessed user management', 'low');
 
-// Get user statistics
-$total_users_stmt = $pdo->query("SELECT COUNT(*) as total FROM users");
-$total_users = $total_users_stmt->fetch()['total'];
+$users = rotc_fetch_admin_users($pdo);
+$total_users = count($users);
+$active_users = 0;
+$pending_users = 0;
 
-// Since there's no status column, we'll count all users as active
-$active_users = $total_users;
+foreach ($users as $userRow) {
+    $status = strtolower(rotc_preferred_value($userRow, ['status', 'profile_status'], 'active'));
+    $approval = strtolower(rotc_preferred_value($userRow, ['approval_status'], 'approved'));
+    $isActive = (string)($userRow['is_active'] ?? '1');
 
-$recent_users_stmt = $pdo->query("SELECT COUNT(*) as total FROM users WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
-$recent_users = $recent_users_stmt->fetch()['total'];
+    if (($status === 'active' || $status === '') && $isActive !== '0') {
+        $active_users++;
+    }
+    if ($approval === 'pending' || $status === 'pending') {
+        $pending_users++;
+    }
+}
+
+$recent_users = 0;
+if (rotc_has_column($pdo, 'users', 'created_at')) {
+    $recent_users_stmt = $pdo->query("SELECT COUNT(*) as total FROM users WHERE DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+    $recent_users = (int)$recent_users_stmt->fetch()['total'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +84,7 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                     <div class="header-actions">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
-                            <input type="text" id="userSearch" placeholder="Search users by name, ID, or email..." onkeyup="searchUsers()">
+                            <input type="text" id="userSearch" placeholder="Search name, username, email, student ID, student number, contact..." onkeyup="searchUsers()">
                         </div>
                         <button class="action-btn primary" onclick="window.location.href='register.php'">
                             <i class="fas fa-user-plus"></i>
@@ -149,7 +164,7 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                         </div>
                     </div>
                     <div class="metric-content">
-                        <h2>0</h2>
+                        <h2><?php echo $pending_users; ?></h2>
                         <p>Pending Approval</p>
                         <div class="metric-footer">
                             <span class="metric-label">Awaiting review</span>
@@ -234,16 +249,28 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                                             <i class="fas fa-sort"></i>
                                         </th>
                                         <th class="sortable" data-sort="username">
-                                            <span>Username</span>
+                                            <span>Name / Username</span>
                                             <i class="fas fa-sort"></i>
                                         </th>
                                         <th class="sortable" data-sort="email">
                                             <span>Email</span>
                                             <i class="fas fa-sort"></i>
                                         </th>
+                                        <th>
+                                            <span>Student IDs</span>
+                                        </th>
+                                        <th>
+                                            <span>Contact</span>
+                                        </th>
+                                        <th>
+                                            <span>Course / Section</span>
+                                        </th>
                                         <th class="sortable" data-sort="role">
                                             <span>Role</span>
                                             <i class="fas fa-sort"></i>
+                                        </th>
+                                        <th>
+                                            <span>Status</span>
                                         </th>
                                         <th class="sortable" data-sort="created_at">
                                             <span>Registration</span>
@@ -254,17 +281,30 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $sql = "SELECT id, username, email, role, created_at FROM users ORDER BY id ASC";
-                                    $result = $pdo->query($sql);
-
-                                    if ($result->rowCount() > 0) {
-                                        while($row = $result->fetch()) {
-                                            echo "<tr class='table-row' data-role='" . strtolower($row['role']) . "'>";
+                                    if (!empty($users)) {
+                                        foreach ($users as $row) {
+                                            $displayName = rotc_display_name($row);
+                                            $studentId = rotc_preferred_value($row, ['profile_student_id', 'student_id'], 'N/A');
+                                            $studentNumber = rotc_preferred_value($row, ['profile_student_number'], 'N/A');
+                                            $contact = rotc_preferred_value($row, ['profile_contact_number', 'profile_phone', 'profile_contact', 'contact_number'], 'N/A');
+                                            $course = rotc_preferred_value($row, ['profile_course', 'course'], 'N/A');
+                                            $section = rotc_preferred_value($row, ['profile_section'], '');
+                                            $role = rotc_preferred_value($row, ['role'], 'user');
+                                            $status = strtolower(rotc_preferred_value($row, ['status', 'profile_status'], 'active'));
+                                            $approval = strtolower(rotc_preferred_value($row, ['approval_status'], 'approved'));
+                                            $createdAt = rotc_preferred_value($row, ['created_at']);
+                                            $searchBlob = htmlspecialchars(rotc_user_search_blob($row), ENT_QUOTES, 'UTF-8');
+                                            $roleClass = htmlspecialchars(str_replace('-', '_', strtolower($role)), ENT_QUOTES, 'UTF-8');
+                                            echo "<tr class='table-row' data-role='" . htmlspecialchars(strtolower($role), ENT_QUOTES, 'UTF-8') . "' data-status='" . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . "' data-search='{$searchBlob}'>";
                                             echo "<td class='user-id'>" . htmlspecialchars($row['id']) . "</td>";
-                                            echo "<td class='username'>" . htmlspecialchars($row['username']) . "</td>";
-                                            echo "<td class='email'>" . htmlspecialchars($row['email']) . "</td>";
-                                            echo "<td><span class='modern-badge role-" . strtolower($row['role']) . "'>" . htmlspecialchars(ucfirst($row['role'])) . "</span></td>";
-                                            echo "<td class='date'>" . date('M j, Y', strtotime($row['created_at'])) . "</td>";
+                                            echo "<td class='username'><strong>" . htmlspecialchars($displayName) . "</strong><br><small>@" . htmlspecialchars($row['username'] ?? '') . "</small></td>";
+                                            echo "<td class='email'>" . htmlspecialchars(rotc_preferred_value($row, ['email', 'profile_email'], 'N/A')) . "</td>";
+                                            echo "<td><strong>" . htmlspecialchars($studentId) . "</strong><br><small>No. " . htmlspecialchars($studentNumber) . "</small></td>";
+                                            echo "<td>" . htmlspecialchars($contact) . "</td>";
+                                            echo "<td>" . htmlspecialchars($course) . ($section !== '' ? "<br><small>" . htmlspecialchars($section) . "</small>" : "") . "</td>";
+                                            echo "<td><span class='modern-badge role-{$roleClass}'>" . htmlspecialchars(ucfirst(str_replace(['_', '-'], ' ', $role))) . "</span></td>";
+                                            echo "<td><span class='modern-badge status-" . htmlspecialchars($status) . "'>" . htmlspecialchars(ucfirst($status)) . "</span><br><small>" . htmlspecialchars(ucfirst($approval)) . "</small></td>";
+                                            echo "<td class='date'>" . ($createdAt !== '' ? date('M j, Y', strtotime($createdAt)) : 'N/A') . "</td>";
                                             echo "<td class='actions'>";
                                             echo "<div class='action-group'>";
                                             echo "<button class='action-btn-sm edit' onclick=\"editUser(" . $row['id'] . ")\" title='Edit User'>";
@@ -283,7 +323,7 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                                             echo "</tr>";
                                         }
                                     } else {
-                                        echo "<tr><td colspan='6' class='no-data'>No users found</td></tr>";
+                                        echo "<tr><td colspan='10' class='no-data'>No users found</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -295,21 +335,35 @@ $recent_users = $recent_users_stmt->fetch()['total'];
                     <div class="data-container hidden" id="gridView">
                         <div class="users-grid">
                             <?php
-                            $result = $pdo->query($sql);
-                            if ($result->rowCount() > 0) {
-                                while($row = $result->fetch()) {
-                                    echo "<div class='user-card' data-role='" . strtolower($row['role']) . "'>";
+                            if (!empty($users)) {
+                                foreach ($users as $row) {
+                                    $displayName = rotc_display_name($row);
+                                    $studentId = rotc_preferred_value($row, ['profile_student_id', 'student_id'], 'N/A');
+                                    $studentNumber = rotc_preferred_value($row, ['profile_student_number'], 'N/A');
+                                    $contact = rotc_preferred_value($row, ['profile_contact_number', 'profile_phone', 'profile_contact', 'contact_number'], 'N/A');
+                                    $course = rotc_preferred_value($row, ['profile_course', 'course'], 'N/A');
+                                    $role = rotc_preferred_value($row, ['role'], 'user');
+                                    $status = strtolower(rotc_preferred_value($row, ['status', 'profile_status'], 'active'));
+                                    $searchBlob = htmlspecialchars(rotc_user_search_blob($row), ENT_QUOTES, 'UTF-8');
+                                    $roleClass = htmlspecialchars(str_replace('-', '_', strtolower($role)), ENT_QUOTES, 'UTF-8');
+                                    echo "<div class='user-card' data-role='" . htmlspecialchars(strtolower($role), ENT_QUOTES, 'UTF-8') . "' data-status='" . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . "' data-search='{$searchBlob}'>";
                                     echo "<div class='user-avatar'>";
                                     echo "<i class='fas fa-user'></i>";
                                     echo "</div>";
                                     echo "<div class='user-info'>";
-                                    echo "<h4>" . htmlspecialchars($row['username']) . "</h4>";
-                                    echo "<p>" . htmlspecialchars($row['email']) . "</p>";
-                                    echo "<span class='modern-badge role-" . strtolower($row['role']) . "'>" . htmlspecialchars(ucfirst($row['role'])) . "</span>";
+                                    echo "<h4>" . htmlspecialchars($displayName) . "</h4>";
+                                    echo "<p>" . htmlspecialchars(rotc_preferred_value($row, ['email', 'profile_email'], 'N/A')) . "</p>";
+                                    echo "<p><strong>ID:</strong> " . htmlspecialchars($studentId) . " <strong>No:</strong> " . htmlspecialchars($studentNumber) . "</p>";
+                                    echo "<p><strong>Contact:</strong> " . htmlspecialchars($contact) . "</p>";
+                                    echo "<p><strong>Course:</strong> " . htmlspecialchars($course) . "</p>";
+                                    echo "<span class='modern-badge role-{$roleClass}'>" . htmlspecialchars(ucfirst(str_replace(['_', '-'], ' ', $role))) . "</span>";
                                     echo "</div>";
                                     echo "<div class='user-actions'>";
                                     echo "<button class='action-btn-sm edit' onclick=\"editUser(" . $row['id'] . ")\">";
                                     echo "<i class='fas fa-edit'></i>";
+                                    echo "</button>";
+                                    echo "<button class='action-btn-sm view' onclick=\"viewUser(" . $row['id'] . ")\">";
+                                    echo "<i class='fas fa-eye'></i>";
                                     echo "</button>";
                                     if ($row['id'] != $_SESSION['user_id']) {
                                         echo "<button class='action-btn-sm delete' onclick=\"deleteUser(" . $row['id'] . ")\">";
@@ -877,6 +931,9 @@ $recent_users = $recent_users_stmt->fetch()['total'];
     .role-basic_cadet { background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); color: white; }
     .role-instructor { background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; }
     .role-officer { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; }
+    .status-active { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+    .status-inactive { background: linear-gradient(135deg, #6c757d 0%, #545b62 100%); color: white; }
+    .status-pending { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #111; }
 
     .action-group {
         display: flex;
@@ -1053,23 +1110,35 @@ $recent_users = $recent_users_stmt->fetch()['total'];
     </style>
 
     <script>
+    function normalizeFilterValue(value) {
+        return (value || '').toLowerCase().replace(/-/g, '_');
+    }
+
+    function applyUserFilters() {
+        const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+        const roleFilter = normalizeFilterValue(document.getElementById('roleFilter').value);
+        const statusFilter = normalizeFilterValue(document.getElementById('statusFilter').value);
+        const items = [
+            ...document.querySelectorAll('#usersTable tbody tr'),
+            ...document.querySelectorAll('.user-card')
+        ];
+
+        items.forEach(item => {
+            const itemRole = normalizeFilterValue(item.dataset.role);
+            const itemStatus = normalizeFilterValue(item.dataset.status);
+            const searchText = (item.dataset.search || item.textContent).toLowerCase();
+            const roleMatches = !roleFilter || itemRole === roleFilter;
+            const statusMatches = !statusFilter || itemStatus === statusFilter;
+            const searchMatches = !searchTerm || searchText.includes(searchTerm);
+            item.style.display = roleMatches && statusMatches && searchMatches
+                ? (item.classList.contains('user-card') ? 'block' : '')
+                : 'none';
+        });
+    }
+
     // Enhanced search functionality
     document.getElementById('userSearch').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const tableRows = document.querySelectorAll('#usersTable tbody tr');
-        const gridCards = document.querySelectorAll('.user-card');
-        
-        // Search in table view
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(searchTerm) ? '' : 'none';
-        });
-
-        // Search in grid view
-        gridCards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            card.style.display = text.includes(searchTerm) ? 'block' : 'none';
-        });
+        applyUserFilters();
     });
 
     // View switching functionality
@@ -1097,40 +1166,7 @@ $recent_users = $recent_users_stmt->fetch()['total'];
 
     // Filter functionality
     function filterUsers() {
-        const roleFilter = document.getElementById('roleFilter').value;
-        const statusFilter = document.getElementById('statusFilter').value;
-        const tableRows = document.querySelectorAll('#usersTable tbody tr');
-        const gridCards = document.querySelectorAll('.user-card');
-
-        // Filter table rows
-        tableRows.forEach(row => {
-            const roleElement = row.querySelector('.modern-badge');
-            let showRow = true;
-            
-            if (roleFilter && roleElement) {
-                const roleClass = Array.from(roleElement.classList).find(cls => cls.startsWith('role-'));
-                if (roleClass !== `role-${roleFilter}`) {
-                    showRow = false;
-                }
-            }
-            
-            row.style.display = showRow ? '' : 'none';
-        });
-
-        // Filter grid cards
-        gridCards.forEach(card => {
-            const roleElement = card.querySelector('.modern-badge');
-            let showCard = true;
-            
-            if (roleFilter && roleElement) {
-                const roleClass = Array.from(roleElement.classList).find(cls => cls.startsWith('role-'));
-                if (roleClass !== `role-${roleFilter}`) {
-                    showCard = false;
-                }
-            }
-            
-            card.style.display = showCard ? 'block' : 'none';
-        });
+        applyUserFilters();
     }
 
     // Table sorting functionality

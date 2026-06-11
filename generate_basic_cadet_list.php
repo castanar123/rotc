@@ -1,12 +1,20 @@
 <?php
 // Generate Basic Cadet List with Student Numbers
+require_once 'includes/session.php';
 require_once 'includes/db.php';
+require_once 'includes/term_enrollment.php';
+
+check_login();
+if (!rotc_role_in(['admin'])) {
+    http_response_code(403);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo 'Access denied';
+    exit();
+}
 
 // Set headers for CSV download
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="Basic_Cadet_List_' . date('Y-m-d') . '.csv"');
-
-require_once 'includes/term_enrollment.php';
 
 function generateBasicCadetList($pdo)
 {

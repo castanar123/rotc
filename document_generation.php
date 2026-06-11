@@ -1,12 +1,13 @@
 <?php
-session_start();
+require_once 'includes/session.php';
 require_once 'includes/db.php';
 require_once 'includes/SecurityLogger.php';
 require_once 'includes/term_enrollment.php';
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
+check_login();
+if (!rotc_role_in(['admin'])) {
+    header('Location: ' . rotc_relative_url('login.php'));
     exit();
 }
 
@@ -472,7 +473,7 @@ endif; ?>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle"></i> ${data.message}
                             <br>
-                            <a href="${data.download_url}" class="btn btn-sm btn-primary mt-2" download>
+                            <a href="${data.download_url}" class="btn btn-sm btn-primary mt-2" download="${data.filename || 'document.csv'}">
                                 <i class="fas fa-download"></i> Download Document
                             </a>
                         </div>
@@ -488,7 +489,7 @@ endif; ?>
                                 <br>
                                 <small class="text-muted">${new Date().toLocaleString()}</small>
                             </div>
-                            <a href="${data.download_url}" class="btn btn-sm btn-outline-primary" download>
+                            <a href="${data.download_url}" class="btn btn-sm btn-outline-primary" download="${data.filename || 'document.csv'}">
                                 <i class="fas fa-download"></i> Download
                             </a>
                         </div>

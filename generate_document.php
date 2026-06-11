@@ -1,22 +1,19 @@
 <?php
-// Start session only if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'includes/session.php';
 require_once 'includes/db.php';
 require_once 'includes/term_enrollment.php';
 
 // Simple document generation without PHPWord for now
 // Note: For full Word document processing, PHPWord library should be installed
 
+header('Content-Type: application/json');
+
 // Check if user is logged in and is admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || !rotc_role_in(['admin'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Access denied']);
     exit();
 }
-
-header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -29,6 +26,33 @@ $documentType = $input['document_type'] ?? '';
 $subDocument = $input['sub_document'] ?? '';
 $targetSy = trim($input['target_school_year'] ?? '');
 $targetSem = trim($input['target_semester'] ?? '');
+
+function sendGeneratedCsv(string $message, string $filename, string $content): void
+{
+    $filePath = $filename;
+    $downloadUrl = 'data:text/csv;charset=utf-8;base64,' . base64_encode($content);
+
+    if (!getenv('VERCEL')) {
+        $outputDir = __DIR__ . DIRECTORY_SEPARATOR . 'output';
+        $relativePath = 'output/' . $filename;
+        $absolutePath = $outputDir . DIRECTORY_SEPARATOR . $filename;
+
+        if ((is_dir($outputDir) || @mkdir($outputDir, 0775, true)) && is_writable($outputDir)) {
+            if (@file_put_contents($absolutePath, $content) !== false) {
+                $filePath = $relativePath;
+                $downloadUrl = $relativePath;
+            }
+        }
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => $message,
+        'file_path' => $filePath,
+        'download_url' => $downloadUrl,
+        'filename' => $filename
+    ]);
+}
 
 try {
     switch ($documentType) {
@@ -152,11 +176,6 @@ function generateSummaryDocument($pdo, $targetSy = '', $targetSem = '')
     $totalMale = $summaryData['MS-1']['male'] + $summaryData['MS-32']['male'] + $summaryData['MS-42']['male'];
     $totalFemale = $summaryData['MS-1']['female'] + $summaryData['MS-32']['female'] + $summaryData['MS-42']['female'];
 
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
-
     // Generate CSV content
     $csvContent = "AER SUMMARY REPORT - {$semester} Semester S.Y. {$school_year}\n";
     $csvContent .= "Generated on: " . date('F j, Y') . "\n\n";
@@ -167,16 +186,11 @@ function generateSummaryDocument($pdo, $targetSy = '', $targetSem = '')
     $csvContent .= "MS-42,{$summaryData['MS-42']['male']},{$summaryData['MS-42']['female']},{$totals['MS-42']}\n";
     $csvContent .= "TOTAL,{$totalMale},{$totalFemale},{$grandTotal}\n";
 
-    // Save document
-    $outputPath = 'output/AER_Summary_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Summary document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Summary document generated successfully',
+        'AER_Summary_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateRosterDocument($pdo, $targetSy = '', $targetSem = '')
@@ -248,11 +262,6 @@ function generateRosterDocument($pdo, $targetSy = '', $targetSem = '')
             $groupedCadets[$key] = [];
         }
         $groupedCadets[$key][] = $cadet;
-    }
-
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
     }
 
     // Generate CSV content
@@ -360,16 +369,11 @@ function generateRosterDocument($pdo, $targetSy = '', $targetSem = '')
         }
     }
 
-    // Save document
-    $outputPath = 'output/AER_Roster_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Roster document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Roster document generated successfully',
+        'AER_Roster_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateBeneficiariesDocument($pdo, $targetSy = '', $targetSem = '')
@@ -429,11 +433,6 @@ function generateBeneficiariesDocument($pdo, $targetSy = '', $targetSem = '')
 
     // Debug output
     error_log("DEBUG: Beneficiaries query returned " . count($cadets) . " cadets");
-
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
 
     // Group cadets by MS level and gender
     $groupedCadets = [];
@@ -500,16 +499,11 @@ function generateBeneficiariesDocument($pdo, $targetSy = '', $targetSem = '')
         }
     }
 
-    // Save document
-    $outputPath = 'output/AER_Beneficiaries_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Beneficiaries document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Beneficiaries document generated successfully',
+        'AER_Beneficiaries_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateCadetProfileDocument($pdo, $targetSy = '', $targetSem = '')
@@ -568,11 +562,6 @@ function generateCadetProfileDocument($pdo, $targetSy = '', $targetSem = '')
 
     // Debug output
     error_log("DEBUG: Cadet Profile query returned " . count($cadets) . " cadets");
-
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
 
     // Group cadets by MS level and gender (sanitized) for continuous numbering
     $groupedCadets = [];
@@ -674,16 +663,11 @@ function generateCadetProfileDocument($pdo, $targetSy = '', $targetSem = '')
         }
     }
 
-    // Save document
-    $outputPath = 'output/AER_Cadet_Profile_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Cadet Profile document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Cadet Profile document generated successfully',
+        'AER_Cadet_Profile_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateASRDocument($pdo, $targetSy = '', $targetSem = '')
@@ -719,11 +703,6 @@ function generateASRDocument($pdo, $targetSy = '', $targetSem = '')
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$school_year, $semester]);
     $cadets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
 
     // Generate CSV content for ASR with FULL NAME grouped by gender
     $csvContent = "ASR COMPLETION LIST - {$semester} Semester S.Y. {$school_year}\n";
@@ -772,16 +751,11 @@ function generateASRDocument($pdo, $targetSy = '', $targetSem = '')
         $csvContent .= "\n"; // blank line between gender sections
     }
 
-    // Save document
-    $outputPath = 'output/ASR_Document_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'ASR document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'ASR document generated successfully',
+        'ASR_Document_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateASRGradeReportDocument($pdo, $targetSy = '', $targetSem = '')
@@ -817,11 +791,6 @@ function generateASRGradeReportDocument($pdo, $targetSy = '', $targetSem = '')
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$school_year, $semester]);
     $cadets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Create output directory if it doesn't exist
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
 
     // Generate CSV content for ASR Grade Report with FULL NAME grouped by gender
     $csvContent = "ASR GRADE REPORT - {$semester} Semester S.Y. {$school_year}\n";
@@ -872,15 +841,11 @@ function generateASRGradeReportDocument($pdo, $targetSy = '', $targetSem = '')
         $csvContent .= "\n";
     }
 
-    $outputPath = 'output/ASR_Grade_Report_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'ASR grade report generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'ASR grade report generated successfully',
+        'ASR_Grade_Report_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateAttendancePerPlatoon($pdo, $targetSy = '', $targetSem = '')
@@ -918,10 +883,6 @@ function generateAttendancePerPlatoon($pdo, $targetSy = '', $targetSem = '')
     $stmt->execute([$school_year, $semester]);
     $cadets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
-
     $csvContent = "\ufeff"; // BOM for Excel
     $csvContent .= "ATTENDANCE PER PLATOON - {$semester} Semester S.Y. {$school_year}\n";
     $csvContent .= "Generated on: " . date('F j, Y') . "\n\n";
@@ -956,15 +917,11 @@ function generateAttendancePerPlatoon($pdo, $targetSy = '', $targetSem = '')
         $csvContent .= "\n";
     }
 
-    $outputPath = 'output/Attendance_Platoon_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csvContent);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Attendance per platoon document generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Attendance per platoon document generated successfully',
+        'Attendance_Platoon_' . date('Y-m-d_H-i-s') . '.csv',
+        $csvContent
+    );
 }
 
 function generateQRDataExport($pdo, $targetSy = '', $targetSem = '')
@@ -991,10 +948,6 @@ function generateQRDataExport($pdo, $targetSy = '', $targetSem = '')
     $stmt->execute([$school_year, $semester]);
     $cadets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!file_exists('output')) {
-        mkdir('output', 0777, true);
-    }
-
     $csv = '\ufeff'; // BOM for Excel UTF-8
     $csv .= "Name,Student ID,Gender,Platoon,Status,Profile ID\n";
 
@@ -1009,14 +962,10 @@ function generateQRDataExport($pdo, $targetSy = '', $targetSem = '')
         $csv .= "\"{$fullName}\",{$studentId},{$gender},\"{$platoon}\",{$status},{$profileId}\n";
     }
 
-    $outputPath = 'output/Cadet_QR_Export_' . date('Y-m-d_H-i-s') . '.csv';
-    file_put_contents($outputPath, $csv);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Cadet QR data export generated successfully',
-        'file_path' => $outputPath,
-        'download_url' => $outputPath
-    ]);
+    sendGeneratedCsv(
+        'Cadet QR data export generated successfully',
+        'Cadet_QR_Export_' . date('Y-m-d_H-i-s') . '.csv',
+        $csv
+    );
 }
 ?>
